@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JSSATS_API", "JSSATS_API\JSSATS_API.csproj", "{926F7C10-135A-4A6C-8CAB-6AD86529632F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSSATSAPI.BussinessObjects", "JSSATSAPI.BussinessObjects\JSSATSAPI.BussinessObjects.csproj", "{DC1888B4-FD29-467F-A825-F67CF508E876}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSSATSAPI.DataAccess", "JSSATSAPI.DataAccess\JSSATSAPI.DataAccess.csproj", "{AEC88864-76A0-48DC-871A-BA764778C9AC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{926F7C10-135A-4A6C-8CAB-6AD86529632F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{926F7C10-135A-4A6C-8CAB-6AD86529632F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{926F7C10-135A-4A6C-8CAB-6AD86529632F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{926F7C10-135A-4A6C-8CAB-6AD86529632F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC1888B4-FD29-467F-A825-F67CF508E876}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC1888B4-FD29-467F-A825-F67CF508E876}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC1888B4-FD29-467F-A825-F67CF508E876}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC1888B4-FD29-467F-A825-F67CF508E876}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEC88864-76A0-48DC-871A-BA764778C9AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEC88864-76A0-48DC-871A-BA764778C9AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEC88864-76A0-48DC-871A-BA764778C9AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEC88864-76A0-48DC-871A-BA764778C9AC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6E4532DE-BC51-4679-ACE9-D5481CACCE1E}
+	EndGlobalSection
+EndGlobal
