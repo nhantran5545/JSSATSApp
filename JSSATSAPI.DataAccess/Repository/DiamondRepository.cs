@@ -14,6 +14,10 @@ namespace JSSATSAPI.DataAccess.Repository
         public DiamondRepository(JSS_DBContext context) : base(context)
         {
         }
-
+        public async Task<Diamond> GetDiamondByProductIdAsync(string productId)
+        {
+            return await _context.Diamonds
+                .FirstOrDefaultAsync(d => d.DiamondCode == productId);
+        }
     }
 }

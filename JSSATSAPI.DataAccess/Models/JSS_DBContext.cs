@@ -39,7 +39,6 @@ namespace JSSATSAPI.DataAccess.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -165,8 +164,6 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.Property(e => e.DiamondName).HasMaxLength(255);
 
-                entity.Property(e => e.DiamondPriceId).HasColumnName("DiamondPriceID");
-
                 entity.Property(e => e.Origin).HasMaxLength(255);
 
                 entity.Property(e => e.Polish).HasMaxLength(50);
@@ -176,12 +173,6 @@ namespace JSSATSAPI.DataAccess.Models
                 entity.Property(e => e.Status).HasMaxLength(50);
 
                 entity.Property(e => e.Symmetry).HasMaxLength(50);
-
-                entity.HasOne(d => d.DiamondPrice)
-                    .WithMany(p => p.Diamonds)
-                    .HasForeignKey(d => d.DiamondPriceId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Diamond_DiamondPrice");
             });
 
             modelBuilder.Entity<DiamondPrice>(entity =>

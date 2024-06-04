@@ -1,5 +1,6 @@
 using AutoMapper;
 using Azure.Storage.Blobs;
+using JSSATSAPI.BussinessObjects.InheritanceClass;
 using JSSATSAPI.BussinessObjects.IService;
 using JSSATSAPI.BussinessObjects.Service;
 using JSSATSAPI.DataAccess.IRepository;
@@ -16,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -156,5 +158,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ProductHub>("/productHub");
 
 app.Run();

@@ -9,6 +9,7 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface IDiamondPriceRepository : IGenericRepository<DiamondPrice>
     {
-        Task<DiamondPrice> GetDiamondPriceByIdAsync(int diamondPriceId);
+        Task<DiamondPrice> GetLatestDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut);
+
     }
 }

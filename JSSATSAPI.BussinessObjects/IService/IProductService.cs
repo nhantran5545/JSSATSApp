@@ -9,8 +9,10 @@ namespace JSSATSAPI.BussinessObjects.IService
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductResponse>> GetAllProductsAsync();
-        IEnumerable<ProductResponse> GetProductsAvaiable();
+        Task<IEnumerable<ProductResponse>> GetAllProductMaterialsAsync();
+        Task<IEnumerable<ProductResponse>> GetAllProductDiamondsAsync();
+        Task<IEnumerable<ProductResponse>> GetAllProductMaterialsAvaiableAsync();
+        Task<IEnumerable<ProductResponse>> GetAllProductDiamondsAvaivaleAsync();
 
     }
 }

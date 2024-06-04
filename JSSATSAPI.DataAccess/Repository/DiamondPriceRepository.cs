@@ -1,5 +1,6 @@
 ﻿using JSSATSAPI.DataAccess.IRepository;
 using JSSATSAPI.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,18 @@ namespace JSSATSAPI.DataAccess.Repository
         {
         }
 
-        public async Task<DiamondPrice> GetDiamondPriceByIdAsync(int diamondPriceId)
+
+        public async Task<DiamondPrice> GetLatestDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut)
         {
-            return await _context.DiamondPrices.FindAsync(diamondPriceId);
+            return await _context.Set<DiamondPrice>()
+                                 .Where(dp => dp.Origin == origin &&
+                                              dp.CaratWeight == caratWeight &&
+                                              dp.Color == color &&
+                                              dp.Clarity == clarity &&
+                                              dp.Cut == cut)
+                                 .OrderByDescending(dp => dp.EffDate)
+                                 .FirstOrDefaultAsync();
         }
+
     }
 }

@@ -9,13 +9,7 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface IProductRepository : IGenericRepository<Product>
     {
-        IEnumerable<Product> GetProductsByStatus();
-        MaterialPrice GetMaterialPriceById(int materialId);
-        IEnumerable<ProductMaterial> GetProductMaterialsByProductId(string productId);
+        Task<Product> GetProductByIdAsync(string productId);
         Task UpdateProductPrice(string productId, decimal productPrice);
-
-        //Diamond
-
-
     }
 }

@@ -22,25 +22,13 @@ namespace JSSATSAPI.DataAccess.Repository
                 .ToListAsync();
         }
 
-        public IEnumerable<Product> GetProductsByStatus()
+        public async Task<Product> GetProductByIdAsync(string productId)
         {
-            return _context.Products
-                .Include(b => b.Category)
-                .Include(b => b.Counter)
-                .Where(p => p.Status == "Còn hàng").ToList(); 
+            return await _context.Products.Include(p => p.Category)
+                                          .Include(p => p.Counter)
+                                          .FirstOrDefaultAsync(p => p.ProductId == productId);
         }
 
-        public MaterialPrice GetMaterialPriceById(int materialId)
-        {
-            return _context.MaterialPrices.FirstOrDefault(mp => mp.MaterialId == materialId);
-        }
-
-        public IEnumerable<ProductMaterial> GetProductMaterialsByProductId(string productId)
-        {
-            return _context.ProductMaterials.Where(pm => pm.ProductId == productId).ToList();
-
-
-        }
         public async Task UpdateProductPrice(string productId, decimal productPrice)
         {
             var product = await _context.Products.FindAsync(productId);
@@ -50,8 +38,5 @@ namespace JSSATSAPI.DataAccess.Repository
                 await _context.SaveChangesAsync();
             }
         }
-
-
-
     }
 }

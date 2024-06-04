@@ -16,20 +16,42 @@ namespace JSSATS_API.Controllers
         {
             _productService = productService;
         }
-        [HttpGet]
-        [Authorize(Roles = "Manager")]
+
+
+        [HttpGet("allProducts")]
         public async Task<IActionResult> GetAllProducts()
         {
-            var products = await _productService.GetAllProductsAsync();
-            return Ok(products);
-        }
-        [HttpGet("available")]
-        [Authorize]
-        public async Task<IActionResult> GetAvailableProductsMaterial()
-        {
-            var products = _productService.GetProductsAvaiable();
-            return Ok(products);
+            try
+            {
+                var productMaterials = await _productService.GetAllProductMaterialsAsync();
+                var productDiamonds = await _productService.GetAllProductDiamondsAsync();
+
+                var allProducts = productMaterials.Concat(productDiamonds).ToList();
+
+                return Ok(allProducts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
+        [HttpGet("allProductsAvaiable")]
+        public async Task<IActionResult> GetAllProductAvaiables()
+        {
+            try
+            {
+                var productMaterials = await _productService.GetAllProductMaterialsAvaiableAsync();
+                var productDiamonds = await _productService.GetAllProductDiamondsAvaivaleAsync();
+
+                var allProducts = productMaterials.Concat(productDiamonds).ToList();
+
+                return Ok(allProducts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

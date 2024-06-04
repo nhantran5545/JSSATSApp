@@ -9,5 +9,7 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface IProductDiamondRepository : IGenericRepository<ProductDiamond>
     {
+        Task<IEnumerable<ProductDiamond>> GetAllProductDiamondsAsync();
+        Task<IEnumerable<ProductDiamond>> GetAllProductDiamondsAvaiableAsync();
     }
 }
