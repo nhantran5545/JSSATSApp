@@ -16,6 +16,11 @@ namespace JSSATSAPI.DataAccess.Repository
         {
         }
 
+        public async Task<bool> SellerExistsAsync(int sellerId)
+        {
+            return await _context.Accounts.AnyAsync(a => a.AccountId == sellerId);
+        }
+
         public async Task<Account> AuthenticateAsync(string username, string password)
         {
             var user = await _context.Accounts.FirstOrDefaultAsync(u => u.Username == username && u.Password == password);

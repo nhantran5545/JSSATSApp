@@ -11,7 +11,7 @@ namespace JSSATSAPI.DataAccess.Models
         }
 
         public int MaterialId { get; set; }
-        public string MaterialName { get; set; } = null!;
+        public string? MaterialName { get; set; }
 
         public virtual ICollection<MaterialPrice> MaterialPrices { get; set; }
     }

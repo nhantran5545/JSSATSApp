@@ -13,5 +13,6 @@ namespace JSSATSAPI.DataAccess.IRepository
         Task<IEnumerable<Account>> GetAccountsByRoleAsync(string role);
         Account GetAccountById(int accountId);
         Task<Account> GetByUsernameAsync(string username);
+        Task<bool> SellerExistsAsync(int sellerId);
     }
 }

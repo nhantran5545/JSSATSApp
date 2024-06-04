@@ -64,8 +64,32 @@ builder.Services.AddAuthentication();
 //Map Repositories
 builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryTypeRepository, CategoryTypeRepository>();
+builder.Services.AddScoped<ICounterRepository, CounterRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IDiamondRepository, DiamondRepository>();
+builder.Services.AddScoped<IDiamondPriceRepository, DiamondPriceRepository>();
+builder.Services.AddScoped<IMaterialPriceRepository, MaterialPriceRepository>();
+builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
+builder.Services.AddScoped<IOrderBuyBackDetailRepository, OrderBuyBackDetailRepository>();
+builder.Services.AddScoped<IOrderBuyBackRepository, OrderBuyBackRepository>();
+builder.Services.AddScoped<IOrderSellRepository, OrderSellRepository>();
+builder.Services.AddScoped<IOrderSellDetailRepository, OrderSellDetailRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentTypeRepository, PaymentTypeRepository>();
+builder.Services.AddScoped<IProductDiamondRepository, ProductDiamondRepository>();
+builder.Services.AddScoped<IProductMaterialRepository, ProductMaterialRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IWarrantyTicketRepository, WarrantyTicketRepository>();
 //Map Services
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderSellService, OrderSellService>();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
 // Mapper
 var mapperConfig = new MapperConfiguration(mc =>
@@ -101,8 +125,7 @@ builder.Services.AddAuthentication(x =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("Staff", policy => policy.RequireRole("Staff"));
+    options.AddPolicy("Seller", policy => policy.RequireRole("Seller"));
     options.AddPolicy("Cashier", policy => policy.RequireRole("Cashier"));
     options.AddPolicy("Manager", policy => policy.RequireRole("Manager"));
 });

@@ -11,8 +11,8 @@ namespace JSSATSAPI.DataAccess.Models
         }
 
         public int CategoryTypeId { get; set; }
-        public string CategoryTypeName { get; set; } = null!;
-        public string Status { get; set; } = null!;
+        public string? CategoryTypeName { get; set; }
+        public string? Status { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }
     }

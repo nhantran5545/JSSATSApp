@@ -31,7 +31,7 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpPost("signup")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> SignUp(AccountSignUpRequest accountSignUp)
         {
             try
