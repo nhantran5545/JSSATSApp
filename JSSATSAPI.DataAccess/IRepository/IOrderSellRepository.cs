@@ -14,6 +14,7 @@ namespace JSSATSAPI.DataAccess.IRepository
         Product GetProductById(string productId);
         IEnumerable<OrderSell> GetOrdersByCustomerId(string customerId);
         Task<OrderSell> GetOrderSellWithDetailsAsync(int id);
+        Task<IEnumerable<OrderSell>> GetAllOrderSellBySellerAsync(int sellerId);
         void SaveChanges();
     }
 }

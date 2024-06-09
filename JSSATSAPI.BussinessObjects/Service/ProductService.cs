@@ -297,9 +297,5 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             return buyBackPrice;
         }
-
-
-
-
     }
 }

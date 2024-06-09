@@ -50,7 +50,7 @@ namespace JSSATSAPI.DataAccess.Repository
                                  .Include(pm => pm.Product)
                                  .ThenInclude(p => p.Category)
                                  .Include(pm => pm.Material)
-                                 .Where(pm => pm.Product.Status == "Còn hàng")
+                                 .Where(pm => pm.Product.Status == "Còn hàng" && pm.Product.Quantity > 0)
                                  .ToListAsync();
         }
 

@@ -1,9 +1,13 @@
 ﻿using JSSATSAPI.BussinessObjects.IService;
+using JSSATSAPI.BussinessObjects.RequestModels.CustomerReqModels;
+using JSSATSAPI.BussinessObjects.RequestModels.ProductReq;
 using JSSATSAPI.BussinessObjects.ResponseModels.CustomerResponse;
+using JSSATSAPI.BussinessObjects.Service;
 using JSSATSAPI.DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace JSSATS_API.Controllers
 {
@@ -16,6 +20,25 @@ namespace JSSATS_API.Controllers
         public CustomersController(ICustomerService customerService)
         {
             _customerService = customerService;
+        }
+        [HttpPost("create")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> CreateProduct([FromBody] CustomerRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest("CustomerRequest is null.");
+            }
+
+            try
+            {
+                var response = await _customerService.CreateCustomerAsync(request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Message: {ex.Message}");
+            }
         }
 
         [HttpGet]

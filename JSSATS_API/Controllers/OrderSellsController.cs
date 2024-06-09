@@ -17,11 +17,13 @@ namespace JSSATS_API.Controllers
     {
         private readonly IOrderSellService _orderSellService;
         private readonly IInvoiceService _invoiceService;
+        private readonly IAccountService _accountService;
 
-        public OrderSellsController(IOrderSellService orderSellService, IInvoiceService invoiceService)
+        public OrderSellsController(IOrderSellService orderSellService, IInvoiceService invoiceService , IAccountService accountService)
         {
             _orderSellService = orderSellService;
             _invoiceService = invoiceService;
+            _accountService = accountService;
         }
 
         [HttpGet]
@@ -46,6 +48,27 @@ namespace JSSATS_API.Controllers
             try
             {
                 var orderSells = await _orderSellService.GetOrderSellById(orderSellsId);
+                if (orderSells == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orderSells);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+        [HttpGet("orderSellBySeller")]
+        [Authorize]
+        public async Task<IActionResult> GetOrderSellBySellerId()
+        {
+            try
+            {
+                var sellerId =  _accountService.GetAccountIdFromToken();
+                var orderSells = await _orderSellService.GetOrderSellBySellerId(sellerId);
                 if (orderSells == null)
                 {
                     return NotFound();

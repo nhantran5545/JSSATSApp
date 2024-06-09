@@ -19,6 +19,7 @@ namespace JSSATSAPI.BussinessObjects.IService
         Task<OrderSellResponse> PaidOrderSellAsync(CompletedOrderSellResponse completedOrderSellDto);
         Task<OrderSellResponse> CancelOrderSellAsync(int orderSellId);
         Task<OrderSellResponse> DeliveredOrderSellAsync(int orderSellId);
+        Task<IEnumerable<OrderSellResponse>> GetOrderSellBySellerId(int sellerId);
     }
 
 }

@@ -41,5 +41,7 @@ namespace JSSATSAPI.DataAccess.Repository
             return await _context.Accounts
                 .FirstOrDefaultAsync(a => a.Username == username);
         }
+
+
     }
 }

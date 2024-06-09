@@ -41,7 +41,7 @@ namespace JSSATSAPI.DataAccess.Repository
                                  .Include(pd => pd.Product)
                                  .ThenInclude(p => p.Category)
                                  .Include(pd => pd.DiamondCodeNavigation)
-                                  .Where(pd => pd.Product.Status == "Còn hàng")
+                                  .Where(pd => pd.Product.Status == "Còn hàng" && pd.Product.Quantity > 0)
                                  .ToListAsync();
         }
 

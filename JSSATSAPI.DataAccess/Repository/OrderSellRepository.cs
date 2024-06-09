@@ -44,6 +44,20 @@ namespace JSSATSAPI.DataAccess.Repository
                 .FirstOrDefaultAsync();
         }
 
+        public  async Task<IEnumerable<OrderSell>> GetAllOrderSellBySellerAsync(int sellerId)
+        {
+            return await _context.OrderSells
+                .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
+                .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
+                .Include(b => b.OrderSellDetails)
+                .ThenInclude(b => b.Product)
+                .Where(br => br.SellerId.Equals(sellerId))
+                .ToListAsync();
+        }
+
         public async Task<OrderSell> GetOrderSellWithDetailsAsync(int id)
         {
             return await _context.OrderSells

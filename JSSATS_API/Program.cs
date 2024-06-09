@@ -7,6 +7,7 @@ using JSSATSAPI.DataAccess.IRepository;
 using JSSATSAPI.DataAccess.Models;
 using JSSATSAPI.DataAccess.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -58,6 +59,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<JSS_DBContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("JSSDB")));
 
+builder.Services.Configure<FormOptions>(x => {
+    x.ValueLengthLimit = int.MaxValue;
+    x.MultipartBodyLengthLimit = int.MaxValue; // In case of large files
+    x.MemoryBufferThreshold = int.MaxValue;
+});
+
+
 // Cau hinh Memory Cache
 builder.Services.AddMemoryCache();
 //
@@ -98,9 +106,10 @@ builder.Services.AddScoped<IDiamondPriceService, DiamondPriceService>();
 builder.Services.AddScoped<IMaterialPriceService, MaterialPriceService>();
 builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<IOrderBuyBackService, OrderBuyBackService>();
+builder.Services.AddScoped<IBarCodeService, BarcodeService>();
 
 
-
+builder.Services.AddSingleton<BarcodeService>();
 // Mapper
 var mapperConfig = new MapperConfiguration(mc =>
 {
