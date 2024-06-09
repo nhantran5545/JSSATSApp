@@ -9,5 +9,6 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface IMaterialRepository : IGenericRepository<Material>
     {
+        Task<IEnumerable<Material>> GetAllMaterialsAsync();
     }
 }

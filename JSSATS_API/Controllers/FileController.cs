@@ -18,7 +18,7 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpPost("uploadFile")]
-        [Authorize]
+/*        [Authorize]*/
         public async Task<IActionResult> UploadImage([FromForm] FileRequest fileRequest)
         {
             // Kiểm tra xem file có phải là hình ảnh hay không

@@ -26,5 +26,18 @@ namespace JSSATSAPI.DataAccess.Repository
                 .Include(b => b.Tier)
                 .ToListAsync();
         }
+
+        public override async Task<Customer?> GetByIdAsync(object id)
+        {
+            return await _context.Customers
+                 .Include(b => b.Tier)
+                .Where(br => br.CustomerId.Equals(id))
+                .FirstOrDefaultAsync();
+        }
+        public Customer GetCustomerById(string customerId)
+        {
+            return _context.Customers.Include(c => c.Tier).FirstOrDefault(c => c.CustomerId == customerId);
+        }
+
     }
 }

@@ -11,12 +11,13 @@ namespace JSSATSAPI.DataAccess.Models
         }
 
         public int OrderBuyBackId { get; set; }
-        public int? CustomerId { get; set; }
+        public string? CustomerId { get; set; }
+        public DateTime? DateBuyBack { get; set; }
         public decimal? TotalAmount { get; set; }
         public decimal? FinalAmount { get; set; }
         public string? Status { get; set; }
-        public DateTime? DateBuyBack { get; set; }
 
+        public virtual Customer? Customer { get; set; }
         public virtual ICollection<OrderBuyBackDetail> OrderBuyBackDetails { get; set; }
     }
 }

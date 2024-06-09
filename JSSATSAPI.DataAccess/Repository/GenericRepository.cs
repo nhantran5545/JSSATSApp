@@ -71,5 +71,6 @@ namespace JSSATSAPI.DataAccess.Repository
         {
             _context.Set<T>().RemoveRange(entities);
         }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using JSSATSAPI.DataAccess.IRepository;
 using JSSATSAPI.DataAccess.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,14 @@ namespace JSSATSAPI.DataAccess.Repository
         public ProductDiamondRepository(JSS_DBContext context) : base(context)
         {
         }
+        public async Task AddProductDiamondAsync(ProductDiamond productDiamond)
+        {
+            // Construct the raw SQL query
+            var sql = "INSERT INTO ProductDiamond (ProductId, DiamondCode) VALUES (@ProductId, @DiamondCode)";
 
+            // Execute the raw SQL command
+            await _context.Database.ExecuteSqlRawAsync(sql, new SqlParameter("@ProductId", productDiamond.ProductId), new SqlParameter("@DiamondCode", productDiamond.DiamondCode));
+        }
         public async Task<IEnumerable<ProductDiamond>> GetAllProductDiamondsAsync()
         {
             return await _context.Set<ProductDiamond>()
@@ -35,6 +43,14 @@ namespace JSSATSAPI.DataAccess.Repository
                                  .Include(pd => pd.DiamondCodeNavigation)
                                   .Where(pd => pd.Product.Status == "Còn hàng")
                                  .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ProductDiamond>> GetProductDiamondsByProductIdAsync(string productId)
+        {
+            return await _context.ProductDiamonds
+                .Include(pd => pd.DiamondCodeNavigation)
+                .Where(pd => pd.ProductId == productId)
+                .ToListAsync();
         }
     }
 }

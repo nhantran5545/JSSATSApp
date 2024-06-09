@@ -22,6 +22,16 @@ namespace JSSATSAPI.DataAccess.Repository
                 .ToListAsync();
         }
 
+
+        public override async Task<Product?> GetByIdAsync(object id)
+        {
+            return await _context.Products
+                 .Include(b => b.Category)
+                .Include(b => b.Counter)
+                .Where(br => br.ProductId.Equals(id))
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<Product> GetProductByIdAsync(string productId)
         {
             return await _context.Products.Include(p => p.Category)

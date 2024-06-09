@@ -7,6 +7,7 @@ namespace JSSATSAPI.DataAccess.Models
     {
         public Customer()
         {
+            OrderBuyBacks = new HashSet<OrderBuyBack>();
             OrderSells = new HashSet<OrderSell>();
         }
 
@@ -18,6 +19,7 @@ namespace JSSATSAPI.DataAccess.Models
         public int? LoyaltyPoints { get; set; }
 
         public virtual Membership? Tier { get; set; }
+        public virtual ICollection<OrderBuyBack> OrderBuyBacks { get; set; }
         public virtual ICollection<OrderSell> OrderSells { get; set; }
     }
 }

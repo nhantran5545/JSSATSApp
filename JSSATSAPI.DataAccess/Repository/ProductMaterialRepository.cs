@@ -1,5 +1,6 @@
 ﻿using JSSATSAPI.DataAccess.IRepository;
 using JSSATSAPI.DataAccess.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,22 @@ namespace JSSATSAPI.DataAccess.Repository
         public ProductMaterialRepository(JSS_DBContext context) : base(context)
         {
         }
+        public async Task AddProductMaterialAsync(ProductMaterial productMaterial)
+        {
+            // Construct the raw SQL query
+            var sql = "INSERT INTO ProductMaterial (ProductId, MaterialId, Weight) VALUES (@ProductId, @MaterialId, @Weight)";
+
+            // Create parameters ensuring that null values are handled appropriately
+            var productIdParam = new SqlParameter("@ProductId", productMaterial.ProductId);
+            var materialIdParam = productMaterial.MaterialId.HasValue
+                ? new SqlParameter("@MaterialId", productMaterial.MaterialId.Value)
+                : new SqlParameter("@MaterialId", DBNull.Value);
+            var weightParam = new SqlParameter("@Weight", productMaterial.Weight);
+
+            // Execute the raw SQL command
+            await _context.Database.ExecuteSqlRawAsync(sql, productIdParam, materialIdParam, weightParam);
+        }
+
 
         public async Task<IEnumerable<ProductMaterial>> GetAllProductMaterials()
         {
@@ -32,6 +49,7 @@ namespace JSSATSAPI.DataAccess.Repository
                                  .ThenInclude(p => p.Counter)
                                  .Include(pm => pm.Product)
                                  .ThenInclude(p => p.Category)
+                                 .Include(pm => pm.Material)
                                  .Where(pm => pm.Product.Status == "Còn hàng")
                                  .ToListAsync();
         }
@@ -44,7 +62,22 @@ namespace JSSATSAPI.DataAccess.Repository
 
         public IEnumerable<ProductMaterial> GetProductMaterialsByProductId(string productId)
         {
-            return _context.ProductMaterials.Where(pm => pm.ProductId == productId).ToList();
+            return _context.ProductMaterials
+                                 .Include(pm => pm.Product)
+                                 .ThenInclude(p => p.Counter)
+                                 .Include(pm => pm.Product)
+                                 .ThenInclude(p => p.Category)
+                                 .Include(pm => pm.Material)
+                .Where(pm => pm.ProductId == productId).ToList();
+        }
+
+        public async Task<MaterialPrice> GetLatestMaterialPriceAsync(int materialId)
+        {
+            return await _context.Set<MaterialPrice>()
+                .Include(p => p.Material)
+                                 .Where(mp => mp.MaterialId == materialId)
+                                 .OrderByDescending(mp => mp.EffDate)
+                                 .FirstOrDefaultAsync();
         }
     }
 }

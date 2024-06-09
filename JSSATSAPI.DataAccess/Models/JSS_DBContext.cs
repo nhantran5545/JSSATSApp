@@ -25,6 +25,7 @@ namespace JSSATSAPI.DataAccess.Models
         public virtual DbSet<DiamondPrice> DiamondPrices { get; set; } = null!;
         public virtual DbSet<Material> Materials { get; set; } = null!;
         public virtual DbSet<MaterialPrice> MaterialPrices { get; set; } = null!;
+        public virtual DbSet<MaterialType> MaterialTypes { get; set; } = null!;
         public virtual DbSet<Membership> Memberships { get; set; } = null!;
         public virtual DbSet<OrderBuyBack> OrderBuyBacks { get; set; } = null!;
         public virtual DbSet<OrderBuyBackDetail> OrderBuyBackDetails { get; set; } = null!;
@@ -126,6 +127,9 @@ namespace JSSATSAPI.DataAccess.Models
                 entity.HasIndex(e => e.TierId, "UQ__Customer__362F561C9BE85348")
                     .IsUnique();
 
+                entity.HasIndex(e => e.TierId, "UQ__Customer__362F561CA97C5919")
+                    .IsUnique();
+
                 entity.Property(e => e.CustomerId)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -203,6 +207,11 @@ namespace JSSATSAPI.DataAccess.Models
                 entity.ToTable("Material");
 
                 entity.Property(e => e.MaterialName).HasMaxLength(255);
+
+                entity.HasOne(d => d.MaterialType)
+                    .WithMany(p => p.Materials)
+                    .HasForeignKey(d => d.MaterialTypeId)
+                    .HasConstraintName("FK_Material_MaterialType");
             });
 
             modelBuilder.Entity<MaterialPrice>(entity =>
@@ -220,6 +229,15 @@ namespace JSSATSAPI.DataAccess.Models
                     .HasForeignKey(d => d.MaterialId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_MaterialPrice_Material");
+            });
+
+            modelBuilder.Entity<MaterialType>(entity =>
+            {
+                entity.ToTable("MaterialType");
+
+                entity.Property(e => e.MaterialTypeId).ValueGeneratedNever();
+
+                entity.Property(e => e.MaterialTypeName).HasMaxLength(50);
             });
 
             modelBuilder.Entity<Membership>(entity =>
@@ -240,7 +258,10 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.Property(e => e.OrderBuyBackId).HasColumnName("OrderBuyBackID");
 
-                entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+                entity.Property(e => e.CustomerId)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("CustomerID");
 
                 entity.Property(e => e.DateBuyBack).HasColumnType("datetime");
 
@@ -249,6 +270,11 @@ namespace JSSATSAPI.DataAccess.Models
                 entity.Property(e => e.Status).HasMaxLength(100);
 
                 entity.Property(e => e.TotalAmount).HasColumnType("decimal(19, 4)");
+
+                entity.HasOne(d => d.Customer)
+                    .WithMany(p => p.OrderBuyBacks)
+                    .HasForeignKey(d => d.CustomerId)
+                    .HasConstraintName("FK_OrderBuyBack_Customer");
             });
 
             modelBuilder.Entity<OrderBuyBackDetail>(entity =>
@@ -260,8 +286,6 @@ namespace JSSATSAPI.DataAccess.Models
                 entity.Property(e => e.BuyBackProductName).HasColumnType("decimal(19, 4)");
 
                 entity.Property(e => e.CaratWeight).HasColumnType("decimal(10, 2)");
-
-                entity.Property(e => e.Category).HasMaxLength(255);
 
                 entity.Property(e => e.Clarity).HasMaxLength(50);
 
@@ -282,7 +306,12 @@ namespace JSSATSAPI.DataAccess.Models
                     .IsUnicode(false)
                     .HasColumnName("ProductID");
 
-                entity.Property(e => e.Weight).HasMaxLength(255);
+                entity.Property(e => e.Weight).HasColumnType("decimal(10, 4)");
+
+                entity.HasOne(d => d.Material)
+                    .WithMany(p => p.OrderBuyBackDetails)
+                    .HasForeignKey(d => d.MaterialId)
+                    .HasConstraintName("FK_OrderBuyBackDetail_Material");
 
                 entity.HasOne(d => d.OrderBuyBack)
                     .WithMany(p => p.OrderBuyBackDetails)
@@ -307,15 +336,15 @@ namespace JSSATSAPI.DataAccess.Models
                     .IsUnicode(false)
                     .HasColumnName("CustomerID");
 
-                entity.Property(e => e.DiscountPercentForCustomer).HasColumnType("decimal(19, 4)");
-
                 entity.Property(e => e.FinalAmount).HasColumnType("decimal(19, 4)");
+
+                entity.Property(e => e.InvidualPromotionDiscount).HasColumnType("decimal(19, 4)");
 
                 entity.Property(e => e.MemberShipDiscount).HasColumnType("decimal(19, 4)");
 
                 entity.Property(e => e.OrderDate).HasColumnType("datetime");
 
-                entity.Property(e => e.PromotionDiscount).HasColumnType("decimal(19, 4)");
+                entity.Property(e => e.PromotionReason).HasMaxLength(255);
 
                 entity.Property(e => e.SellerId).HasColumnName("SellerID");
 
@@ -437,6 +466,9 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.ToTable("ProductDiamond");
 
+                entity.HasIndex(e => e.DiamondCode, "UQ__ProductD__1A0326023191E949")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.DiamondCode, "UQ__ProductD__1A0326028DF3D0AA")
                     .IsUnique();
 
@@ -472,7 +504,6 @@ namespace JSSATSAPI.DataAccess.Models
                 entity.HasOne(d => d.Material)
                     .WithMany()
                     .HasForeignKey(d => d.MaterialId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ProductMaterial_Material");
 
                 entity.HasOne(d => d.Product)
@@ -485,6 +516,9 @@ namespace JSSATSAPI.DataAccess.Models
             {
                 entity.HasKey(e => e.WarrantyId)
                     .HasName("PK__Warranty__2ED31813CD36240A");
+
+                entity.HasIndex(e => e.ProductId, "UQ__Warranty__B40CC6EC5B809D60")
+                    .IsUnique();
 
                 entity.HasIndex(e => e.ProductId, "UQ__Warranty__B40CC6EC75FB568A")
                     .IsUnique();

@@ -15,12 +15,12 @@ namespace JSSATSAPI.DataAccess.Models
         public string? CustomerId { get; set; }
         public int? SellerId { get; set; }
         public decimal? TotalAmount { get; set; }
-        public decimal? PromotionDiscount { get; set; }
+        public decimal? InvidualPromotionDiscount { get; set; }
         public decimal? MemberShipDiscount { get; set; }
         public decimal? FinalAmount { get; set; }
-        public decimal? DiscountPercentForCustomer { get; set; }
         public DateTime? OrderDate { get; set; }
         public string? Status { get; set; }
+        public string? PromotionReason { get; set; }
 
         public virtual Customer? Customer { get; set; }
         public virtual Account? Seller { get; set; }

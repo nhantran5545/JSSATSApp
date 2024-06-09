@@ -17,10 +17,9 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels
         public string SellerFirstName { get; set; }
         public string SellerLastName { get; set; }
         public decimal TotalAmount { get; set; }
-        public decimal PromotionDiscount { get; set; }
+        public decimal InvidualPromotionDiscount { get; set; }
         public decimal MemberShipDiscount { get; set; }
         public decimal FinalAmount { get; set; }
-        public decimal DiscountPercentForCustomer { get; set; }
         public DateTime OrderDate { get; set; }
         public string Status { get; set; }
         public List<OrderSellDetailResponse> OrderSellDetails { get; set; } = new();

@@ -1,5 +1,6 @@
 ﻿using JSSATSAPI.DataAccess.IRepository;
 using JSSATSAPI.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace JSSATSAPI.DataAccess.Repository
         public OrderBuyBackRepository(JSS_DBContext context) : base(context)
         {
         }
+
     }
 }

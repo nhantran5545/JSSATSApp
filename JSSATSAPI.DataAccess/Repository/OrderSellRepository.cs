@@ -20,8 +20,12 @@ namespace JSSATSAPI.DataAccess.Repository
         {
             return await _context.OrderSells
                 .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
                 .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
                 .Include(b => b.OrderSellDetails)
+                .ThenInclude(b => b.Product)
                 .ToListAsync();
         }
 
@@ -30,8 +34,12 @@ namespace JSSATSAPI.DataAccess.Repository
         {
             return await _context.OrderSells
                 .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
                 .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
                 .Include(b => b.OrderSellDetails)
+                .ThenInclude(b => b.Product)
                 .Where(br => br.OrderSellId.Equals(id))
                 .FirstOrDefaultAsync();
         }
@@ -40,6 +48,7 @@ namespace JSSATSAPI.DataAccess.Repository
         {
             return await _context.OrderSells
                 .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
                 .Include(b => b.Seller)
                 .Include(b => b.Payments)
                 .ThenInclude(b => b.PaymentType)
@@ -70,7 +79,13 @@ namespace JSSATSAPI.DataAccess.Repository
         public IEnumerable<OrderSell> GetOrdersByCustomerId(string customerId)
         {
             return _context.OrderSells
+                .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
+                .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
                 .Include(o => o.OrderSellDetails)
+                .ThenInclude(b => b.Product)
                 .Where(o => o.CustomerId == customerId)
                 .ToList();
         }

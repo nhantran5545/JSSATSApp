@@ -9,5 +9,6 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface IMaterialPriceRepository : IGenericRepository<MaterialPrice>
     {
+
     }
 }

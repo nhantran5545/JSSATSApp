@@ -9,10 +9,8 @@ namespace JSSATSAPI.BussinessObjects.RequestModels.OrderSellReq
     public class OrderSellRequest
     {
         public string CustomerId { get; set; }
-        public int SellerId { get; set; }
-        public decimal? PromotionDiscount { get; set; }
-        public decimal? MemberShipDiscount { get; set; }
-        public decimal? DiscountPercentForCustomer { get; set; }
+        public decimal? InvidualPromotionDiscount { get; set; }
+        public string? PromotionReason { get; set; }
         public List<OrderSellDetailRequest> OrderSellDetails { get; set; }
     }
 }

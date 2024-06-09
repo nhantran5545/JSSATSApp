@@ -73,6 +73,22 @@ namespace JSSATS_API.Controllers
             }
         }
 
+        [HttpPut("update-discount/{orderSellId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateIndividualPromotionDiscountAsync(int orderSellId, [FromBody] decimal newDiscount)
+        {
+            try
+            {
+                await _orderSellService.UpdateIndividualPromotionDiscountAsync(orderSellId, newDiscount);
+
+                return Ok("Update discount successful");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("GetOrdersSellByCustomer/{customerId}")]
         [Authorize]
         public ActionResult<IEnumerable<OrderSellResponse>> GetOrdersByCustomer(string customerId)
@@ -88,18 +104,18 @@ namespace JSSATS_API.Controllers
             }
         }
 
-        [HttpPost("complete")]
+        [HttpPost("paid")]
         [Authorize(Roles = "Cashier")]
-        public async Task<IActionResult> CompleteOrderSell(CompletedOrderSellResponse completedOrderSellDto)
+        public async Task<IActionResult> PaidOrderSell(CompletedOrderSellResponse completedOrderSellDto)
         {
             try
             {
-                var completedOrderSell = await _orderSellService.CompleteOrderSellAsync(completedOrderSellDto);
-                if (completedOrderSell.OrderSellId == null)
+                var paidOrderSell = await _orderSellService.PaidOrderSellAsync(completedOrderSellDto);
+                if (paidOrderSell.OrderSellId == null)
                 {
                     return BadRequest("OrderSell not found");
                 }
-                return Ok(completedOrderSell);
+                return Ok(paidOrderSell);
             }
             catch (Exception ex)
             {
@@ -107,14 +123,37 @@ namespace JSSATS_API.Controllers
             }
         }
 
+        [HttpPost("deliveried")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> DeliveriedOrderSell(int orderSellId)
+        {
+            try
+            {
+                var deliveredOrderSell = await _orderSellService.DeliveredOrderSellAsync(orderSellId);
+                if (deliveredOrderSell.OrderSellId == null)
+                {
+                    return BadRequest("OrderSell not found");
+                }
+                return Ok(deliveredOrderSell);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpPost("cancel")]
         [Authorize(Roles = "Cashier")]
-        public async Task<IActionResult> CancelOrderSell([FromBody] int orderSellId)
+        public async Task<IActionResult> CancelledOrderSell( int orderSellId)
         {
             try
             {
                 var cancelledOrderSell = await _orderSellService.CancelOrderSellAsync(orderSellId);
+                if (cancelledOrderSell.OrderSellId == null)
+                {
+                    return BadRequest("OrderSell not found");
+                }
+
                 return Ok(cancelledOrderSell);
             }
             catch (Exception ex)
@@ -138,6 +177,7 @@ namespace JSSATS_API.Controllers
             }
         }
 
+
         [HttpGet("view/{orderSellId}")]
         [Authorize(Roles = "Cashier")]
         public async Task<IActionResult> ViewSellInvoice(int orderSellId)
@@ -152,5 +192,6 @@ namespace JSSATS_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
     }
 }

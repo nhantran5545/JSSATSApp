@@ -16,6 +16,7 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.CustomerResponse
         public string? Phone { get; set; }
         public string? Address { get; set; }
         public int? LoyaltyPoints { get; set; }
+        public int? DiscountPercent { get; set; }
     }
 
 }

@@ -11,17 +11,20 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.OrderSellResponse
         public int OrderSellId { get; set; }
         public string CustomerId { get; set; }
         public string CustomerName { get; set; }
+        public string? CustomerPhone { get; set; }
+        public int? CustomerLoyaltyPoints { get; set; }
         public int SellerId { get; set; }
         public string SellerFirstName { get; set; }
         public string SellerLastName { get; set; }
         public decimal TotalAmount { get; set; }
-        public decimal? PromotionDiscount { get; set; }
+        public decimal? InvidualPromotionDiscount { get; set; }
+        public decimal? MemberShipDiscountPercent { get; set; }
         public decimal? MemberShipDiscount { get; set; }
         public decimal FinalAmount { get; set; }
-        public decimal? DiscountPercentForCustomer { get; set; }
         public DateTime OrderDate { get; set; }
         public string Status { get; set; }
         public List<OrderSellDetailResponse> OrderSellDetails { get; set; }
+        public List<PaymentResponse> Payments { get; set; } = new();
     }
 
 }

@@ -12,7 +12,7 @@ namespace JSSATSAPI.BussinessObjects.Service
     public class FileService : IFileService
     {
         private readonly BlobServiceClient _blobServiceClient;
-        private readonly string _containerName = "jssats";
+        private readonly string _containerName = "bfrsimage";
 
         public FileService(BlobServiceClient blobServiceClient)
         {

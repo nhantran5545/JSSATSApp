@@ -15,8 +15,10 @@ namespace JSSATSAPI.BussinessObjects.IService
         Task<OrderSellResponse> GetOrderSellById(string orderSellId);
         OrderSellResponse CreateSellOrder(OrderSellRequest request);
         IEnumerable<OrderSellResponse> GetOrdersByCustomerId(string customerId);
-        Task<OrderSellResponse> CompleteOrderSellAsync(CompletedOrderSellResponse completedOrderSellDto);
+        Task UpdateIndividualPromotionDiscountAsync(int orderSellId, decimal newDiscount);
+        Task<OrderSellResponse> PaidOrderSellAsync(CompletedOrderSellResponse completedOrderSellDto);
         Task<OrderSellResponse> CancelOrderSellAsync(int orderSellId);
+        Task<OrderSellResponse> DeliveredOrderSellAsync(int orderSellId);
     }
 
 }

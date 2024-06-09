@@ -74,6 +74,7 @@ builder.Services.AddScoped<IDiamondRepository, DiamondRepository>();
 builder.Services.AddScoped<IDiamondPriceRepository, DiamondPriceRepository>();
 builder.Services.AddScoped<IMaterialPriceRepository, MaterialPriceRepository>();
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<IMaterialTypeRepository, MaterialTypeRepository>();
 builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
 builder.Services.AddScoped<IOrderBuyBackDetailRepository, OrderBuyBackDetailRepository>();
 builder.Services.AddScoped<IOrderBuyBackRepository, OrderBuyBackRepository>();
@@ -92,6 +93,13 @@ builder.Services.AddScoped<IOrderSellService, OrderSellService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<IPaymentTypeService, PaymentTypeService>();
+builder.Services.AddScoped<IDiamondPriceService, DiamondPriceService>();
+builder.Services.AddScoped<IMaterialPriceService, MaterialPriceService>();
+builder.Services.AddScoped<IMaterialService, MaterialService>();
+builder.Services.AddScoped<IOrderBuyBackService, OrderBuyBackService>();
+
+
 
 // Mapper
 var mapperConfig = new MapperConfiguration(mc =>

@@ -20,6 +20,7 @@ namespace JSSATSAPI.BussinessObjects.Service
         private readonly IOrderSellRepository _orderSellRepository;
         private readonly IOrderSellDetailRepository _orderSellDetailRepository;
         private readonly ICustomerRepository _customerRepository;
+        private readonly IAccountService _accountService;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly IProductRepository _productRepository;
@@ -27,7 +28,8 @@ namespace JSSATSAPI.BussinessObjects.Service
 
         public OrderSellService(IOrderSellRepository orderSellRepository, 
             IOrderSellDetailRepository orderSellDetailRepository, ICustomerRepository customerRepository, 
-            IAccountRepository accountRepository, IMapper mapper, IProductRepository productRepository, IPaymentRepository paymentRepository)
+            IAccountRepository accountRepository, IMapper mapper, IProductRepository productRepository,
+            IPaymentRepository paymentRepository, IAccountService accountService)
         {
             _orderSellRepository = orderSellRepository;
             _orderSellDetailRepository = orderSellDetailRepository;
@@ -36,6 +38,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             _accountRepository = accountRepository;
             _productRepository = productRepository;
             _mapper = mapper;
+            _accountService = accountService;
         }
         //Create Sell Order
         public OrderSellResponse CreateSellOrder(OrderSellRequest request)
@@ -57,12 +60,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                 {
                     totalAmount += orderSellDetail.Price.Value;
                 }
-
+                product.Status = "Hết hàng";
                 product.Quantity -= orderSellDetail.Quantity;
-                if (product.Quantity == 0)
-                {
-                    product.Status = "Chờ Thanh Toán";
-                }
                 _productRepository.Update(product);
             }
 
@@ -71,17 +70,30 @@ namespace JSSATSAPI.BussinessObjects.Service
                 throw new Exception("No items in the order");
             }
 
-            var finalAmount = totalAmount - (request.PromotionDiscount ?? 0) - (request.MemberShipDiscount ?? 0);
+            var customer = _customerRepository.GetCustomerById(request.CustomerId);
+            decimal membershipDiscount = 0;
+            decimal? tierDiscountPercent = null;
+
+            if (customer?.Tier != null)
+            {
+                tierDiscountPercent = customer.Tier.DiscountPercent;
+                membershipDiscount = totalAmount * (tierDiscountPercent ?? 0) / 100;
+            }
+            decimal individualPromotionDiscountPercent = request.InvidualPromotionDiscount ?? 0;
+            decimal invidualPromotionDiscountAmount = totalAmount * (request.InvidualPromotionDiscount ?? 0) / 100;
+            var finalAmount = totalAmount - invidualPromotionDiscountAmount - membershipDiscount;
+
+            int sellerId = _accountService.GetAccountIdFromToken();
 
             var orderSell = new OrderSell
             {
                 CustomerId = request.CustomerId,
-                SellerId = request.SellerId,
+                SellerId = sellerId,
                 TotalAmount = totalAmount,
-                PromotionDiscount = request.PromotionDiscount,
-                MemberShipDiscount = request.MemberShipDiscount,
+                InvidualPromotionDiscount = individualPromotionDiscountPercent,
+                PromotionReason = request.PromotionReason ?? string.Empty,
+                MemberShipDiscount = membershipDiscount,
                 FinalAmount = finalAmount,
-                DiscountPercentForCustomer = request.DiscountPercentForCustomer,
                 OrderDate = DateTime.Now,
                 Status = "Processing",
                 OrderSellDetails = orderSellDetails,
@@ -90,16 +102,46 @@ namespace JSSATSAPI.BussinessObjects.Service
             _orderSellRepository.AddOrderSell(orderSell);
             _orderSellRepository.SaveChanges();
 
-            return _mapper.Map<OrderSellResponse>(orderSell);
+            var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
+            orderSellResponse.MemberShipDiscountPercent = tierDiscountPercent;
+
+            return orderSellResponse;
         }
 
+        //Manager update IndividualPromotion
+        public async Task UpdateIndividualPromotionDiscountAsync(int orderSellId, decimal newDiscount)
+        {
+            var orderSell = await _orderSellRepository.GetByIdAsync(orderSellId);
+            if (orderSell == null)
+            {
+                throw new Exception("Order not found");
+            }
 
-        public async Task<OrderSellResponse> CompleteOrderSellAsync(CompletedOrderSellResponse completedOrderSellDto)
+            decimal newDiscountAmount = (orderSell.TotalAmount * newDiscount / 100 ?? 0);
+            orderSell.InvidualPromotionDiscount = newDiscount;
+            orderSell.FinalAmount = orderSell.TotalAmount - newDiscountAmount - (orderSell.MemberShipDiscount ?? 0);
+
+             _orderSellRepository.Update(orderSell);
+             _orderSellRepository.SaveChanges();
+        }
+
+        public async Task<OrderSellResponse> PaidOrderSellAsync(CompletedOrderSellResponse completedOrderSellDto)
         {
             var orderSell = await _orderSellRepository.GetByIdAsync(completedOrderSellDto.OrderSellId);
             if (orderSell == null)
             {
                 return null;
+            }
+
+            if (orderSell.Status == "Cancelled" || orderSell.Status == "Delivered")
+            {
+                throw new InvalidOperationException("annot mark a cancelled or delivered order as paid.");
+            }
+
+            // Kiểm tra nếu đơn hàng đã được thanh toán
+            if (orderSell.Status == "Paid")
+            {
+                throw new InvalidOperationException("Order has already been paid.");
             }
 
             foreach (var paymentDto in completedOrderSellDto.Payments)
@@ -110,13 +152,18 @@ namespace JSSATSAPI.BussinessObjects.Service
                 await _paymentRepository.AddPaymentAsync(payment);
             }
 
-            orderSell.Status = "Completed";
-             _orderSellRepository.Update(orderSell);
-             _orderSellRepository.SaveChanges();
+            orderSell.Status = "Paid";
+            _orderSellRepository.Update(orderSell);
+            _orderSellRepository.SaveChanges();
 
             var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
+            var customer = await _customerRepository.GetByIdAsync(orderSell.CustomerId);
+            orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
             return orderSellResponse;
         }
+
+
+
 
         public async Task<OrderSellResponse> CancelOrderSellAsync(int orderSellId)
         {
@@ -126,12 +173,23 @@ namespace JSSATSAPI.BussinessObjects.Service
                 throw new Exception("Order not found");
             }
 
+            if (orderSell.Status == "Paid")
+            {
+                throw new InvalidOperationException("Orders cannot be canceled once payment has been made.");
+            }
+
+            if (orderSell.Status == "Delivered")
+            {
+                throw new InvalidOperationException("Orders cannot be canceled once delivered to the customer.");
+            }
+
             foreach (var orderSellDetail in orderSell.OrderSellDetails)
             {
                 var product = await _productRepository.GetByIdAsync(orderSellDetail.ProductId);
                 if (product != null)
                 {
                     product.Quantity += orderSellDetail.Quantity ?? 0;
+                    product.Status = "Còn hàng";
                     _productRepository.Update(product);
                 }
             }
@@ -141,26 +199,90 @@ namespace JSSATSAPI.BussinessObjects.Service
             _orderSellRepository.SaveChanges();
 
             var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
+            var customer = await _customerRepository.GetByIdAsync(orderSell.CustomerId);
+            orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
             return orderSellResponse;
         }
+
+
+        public async Task<OrderSellResponse> DeliveredOrderSellAsync(int orderSellId)
+        {
+            var orderSell = await _orderSellRepository.GetByIdAsync(orderSellId);
+            if (orderSell == null)
+            {
+                throw new InvalidOperationException("Order cannot be marked as Delivered or Cancelled as it is already Delivered or Paid.");
+            }
+
+            // Check if the order status is already Delivered or Paid
+            if (orderSell.Status == "Cancelled")
+            {
+                throw new InvalidOperationException("Order cannot be cancelled.");
+            }
+
+            if (orderSell.Status == "Delivered")
+            {
+                throw new InvalidOperationException("Order has already been delivered.");
+            }
+
+            orderSell.Status = "Delivered";
+            _orderSellRepository.Update(orderSell);
+            _orderSellRepository.SaveChanges();
+
+            var customer = await _customerRepository.GetByIdAsync(orderSell.CustomerId);
+            if (customer != null)
+            {
+                customer.LoyaltyPoints = (customer.LoyaltyPoints ?? 0) + 30; // Tăng 30 points
+                _customerRepository.Update(customer);
+                _customerRepository.SaveChanges();
+            }
+
+            var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
+            orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+            orderSellResponse.CustomerLoyaltyPoints = customer?.LoyaltyPoints; 
+            return orderSellResponse;
+        }
+
 
         //Get Order By Customer
         public IEnumerable<OrderSellResponse> GetOrdersByCustomerId(string customerId)
         {
             var orders = _orderSellRepository.GetOrdersByCustomerId(customerId);
-            return _mapper.Map<IEnumerable<OrderSellResponse>>(orders);
+            var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orders);
+
+            foreach (var response in orderSellResponses)
+            {
+                var customer = _customerRepository.GetByIdAsync(response.CustomerId).Result;
+                response.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+            }
+
+            return orderSellResponses;
         }
+
 
         public async Task<IEnumerable<OrderSellResponse>> GetOrderSells()
         {
-            var orderSell = await _orderSellRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<OrderSellResponse>>(orderSell);
+            var orderSells = await _orderSellRepository.GetAllAsync();
+            var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orderSells);
+
+            foreach (var response in orderSellResponses)
+            {
+                var customer = await _customerRepository.GetByIdAsync(response.CustomerId);
+                response.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+            }
+
+            return orderSellResponses;
         }
+
         public async Task<OrderSellResponse> GetOrderSellById(string orderSellId)
         {
             var orderSell = await _orderSellRepository.GetByIdAsync(orderSellId);
-            return _mapper.Map<OrderSellResponse>(orderSell);
+            var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
+            var customer = await _customerRepository.GetByIdAsync(orderSell.CustomerId);
+            orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+
+            return orderSellResponse;
         }
+
 
     }
 }
