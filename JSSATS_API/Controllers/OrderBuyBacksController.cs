@@ -45,5 +45,62 @@ namespace JSSATS_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("calculate-prices")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> CalculatePrices([FromBody] OrderBuyBackRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Invalid request");
+            }
+
+            var response = await _orderBuyBackService.CalculatePricesAsync(request);
+
+            if (response.Errors != null && response.Errors.Any())
+            {
+                return BadRequest(new { Errors = response.Errors });
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("review-material-price")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> ReviewMaterialPrice([FromBody] ReviewMaterialPriceRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Invalid request");
+            }
+
+            var response = await _orderBuyBackService.ReviewMaterialPriceAsync(request.MaterialId, request.Weight);
+
+            if (!response.Success)
+            {
+                return BadRequest(new { ErrorMessage = response.ErrorMessage });
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("review-diamond-price")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> ReviewDiamondPrice([FromBody] ReviewDiamondPriceRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Invalid request");
+            }
+
+            var response = await _orderBuyBackService.ReviewDiamondPriceAsync(request.Origin, request.CaratWeight, request.Color, request.Clarity, request.Cut);
+
+            if (!response.Success)
+            {
+                return BadRequest(new { ErrorMessage = response.ErrorMessage });
+            }
+
+            return Ok(response);
+        }
     }
 }

@@ -11,6 +11,9 @@ namespace JSSATSAPI.BussinessObjects.IService
     public interface IOrderBuyBackService
     {
         Task<OrderBuyBackResponse> BuyBackProductOutOfStoreAsync(OrderBuyBackRequest request);
+        Task<CalculatePricesResponse> CalculatePricesAsync(OrderBuyBackRequest request);
         Task<OrderBuyBackInStoreResponse> CreateOrderBuyBackInStoreAsync(OrderBuyBackInStoreRequest request);
+        Task<PriceCalculationResult> ReviewDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut);
+        Task<PriceCalculationResult> ReviewMaterialPriceAsync(int materialId, decimal weight);
     }
 }

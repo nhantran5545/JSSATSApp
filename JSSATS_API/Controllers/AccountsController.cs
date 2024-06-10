@@ -41,9 +41,9 @@ namespace JSSATS_API.Controllers
                 {
                     BadRequest("Username already exists");
                 }
-                if (accountSignUp.Role != "Manager" && accountSignUp.Role != "Staff" && accountSignUp.Role != "Cashier")
+                if ( accountSignUp.Role != "Seller" && accountSignUp.Role != "Cashier")
                 {
-                    BadRequest("Invalid role. Only 'Manager' , 'Staff' or 'Cashier' roles are allowed.");
+                    BadRequest("Invalid role. Only 'Seller' or 'Cashier' roles are allowed.");
                 }
                 await _accountService.RegisterAccountAsync(accountSignUp);
                 return Ok("Account registered successfully");

@@ -1,5 +1,6 @@
 ﻿using JSSATSAPI.DataAccess.IRepository;
 using JSSATSAPI.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,13 @@ namespace JSSATSAPI.DataAccess.Repository
     {
         public CounterRepository(JSS_DBContext context) : base(context)
         {
+        }
+
+        public override async Task<IEnumerable<Counter>> GetAllAsync()
+        {
+            return await _context.Counters
+                .Include(b => b.Account)
+                .ToListAsync();
         }
     }
 }

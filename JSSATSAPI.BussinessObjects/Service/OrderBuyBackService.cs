@@ -45,7 +45,7 @@ namespace JSSATSAPI.BussinessObjects.Service
         public async Task<OrderBuyBackResponse> BuyBackProductOutOfStoreAsync(OrderBuyBackRequest request)
         {
             var orderBuyBack = _mapper.Map<OrderBuyBack>(request);
-
+            var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
             decimal totalAmount = 0;
             var detailResponses = new List<OrderBuyBackDetailResponse>();
             var errorMessages = new List<string>();
@@ -64,42 +64,52 @@ namespace JSSATSAPI.BussinessObjects.Service
                     else
                     {
                         errorMessages.Add($"Material with ID {detail.MaterialId.Value} not found.");
-                        continue; 
+                        continue;
                     }
                 }
 
-                if (!string.IsNullOrEmpty(detail.Origin) && detail.CaratWeight.HasValue && !string.IsNullOrEmpty(detail.Color) &&
-                    !string.IsNullOrEmpty(detail.Clarity) && !string.IsNullOrEmpty(detail.Cut))
+                if (!string.IsNullOrEmpty(detail.Origin) || detail.CaratWeight.HasValue || !string.IsNullOrEmpty(detail.Color) ||
+                    !string.IsNullOrEmpty(detail.Clarity) || !string.IsNullOrEmpty(detail.Cut))
                 {
-                    var diamondPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(detail.Origin, detail.CaratWeight.Value, detail.Color, detail.Clarity, detail.Cut);
-                    if (diamondPrice != null)
+                    if (!string.IsNullOrEmpty(detail.Origin) && detail.CaratWeight.HasValue && !string.IsNullOrEmpty(detail.Color) &&
+                        !string.IsNullOrEmpty(detail.Clarity) && !string.IsNullOrEmpty(detail.Cut))
                     {
-                        price += diamondPrice.BuyPrice ?? 0;
+                        var diamondPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(
+                            detail.Origin,
+                            detail.CaratWeight.Value,
+                            detail.Color,
+                            detail.Clarity,
+                            detail.Cut
+                        );
+                        if (diamondPrice != null)
+                        {
+                            price += diamondPrice.BuyPrice ?? 0;
+                        }
+                        else
+                        {
+                            errorMessages.Add($"Diamond price not found for origin {detail.Origin}, carat weight {detail.CaratWeight}, color {detail.Color}, clarity {detail.Clarity}, cut {detail.Cut}.");
+                            continue;
+                        }
                     }
                     else
                     {
-                        errorMessages.Add($"Diamond price not found for origin {detail.Origin}, carat weight {detail.CaratWeight.Value}, color {detail.Color}, clarity {detail.Clarity}, cut {detail.Cut}.");
-                        continue; 
+                        if (string.IsNullOrEmpty(detail.Origin))
+                            errorMessages.Add("Origin is missing for diamond detail.");
+                        if (!detail.CaratWeight.HasValue)
+                            errorMessages.Add("Carat weight is missing for diamond detail.");
+                        if (string.IsNullOrEmpty(detail.Color))
+                            errorMessages.Add("Color is missing for diamond detail.");
+                        if (string.IsNullOrEmpty(detail.Clarity))
+                            errorMessages.Add("Clarity is missing for diamond detail.");
+                        if (string.IsNullOrEmpty(detail.Cut))
+                            errorMessages.Add("Cut is missing for diamond detail.");
+                        continue;
                     }
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(detail.Origin))
-                        errorMessages.Add("Origin is missing for diamond detail.");
-                    if (!detail.CaratWeight.HasValue)
-                        errorMessages.Add("Carat weight is missing for diamond detail.");
-                    if (string.IsNullOrEmpty(detail.Color))
-                        errorMessages.Add("Color is missing for diamond detail.");
-                    if (string.IsNullOrEmpty(detail.Clarity))
-                        errorMessages.Add("Clarity is missing for diamond detail.");
-                    if (string.IsNullOrEmpty(detail.Cut))
-                        errorMessages.Add("Cut is missing for diamond detail.");
-                    continue; 
                 }
 
                 var orderBuyBackDetail = _mapper.Map<OrderBuyBackDetail>(detail);
                 orderBuyBackDetail.Price = price;
-                
+
                 orderBuyBack.OrderBuyBackDetails.Add(orderBuyBackDetail);
                 totalAmount += price;
 
@@ -119,12 +129,15 @@ namespace JSSATSAPI.BussinessObjects.Service
             orderBuyBack.Status = "Pending";
             orderBuyBack.DateBuyBack = DateTime.Now;
             await _orderBuyBackRepository.AddAsync(orderBuyBack);
-             _orderBuyBackRepository.SaveChanges(); 
+             _orderBuyBackRepository.SaveChanges();
 
             var response = _mapper.Map<OrderBuyBackResponse>(orderBuyBack);
-            response.OrderBuyBackDetails = detailResponses; 
+            response.OrderBuyBackDetails = detailResponses;
+            response.CustomerName = customer.Name;
+            response.CustomerPhone = customer.Phone;
             return response;
         }
+
 
         public async Task<OrderBuyBackInStoreResponse> CreateOrderBuyBackInStoreAsync(OrderBuyBackInStoreRequest request)
         {
@@ -157,7 +170,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 orderBuyBackDetails.Add(orderBuyBackDetail);
             }
 
-            var finalAmount = totalAmount; // Adjust final amount if needed
+            var finalAmount = totalAmount; 
 
             var orderBuyBack = new OrderBuyBack
             {
@@ -176,6 +189,147 @@ namespace JSSATSAPI.BussinessObjects.Service
             return response;
         }
 
+
+        public async Task<CalculatePricesResponse> CalculatePricesAsync(OrderBuyBackRequest request)
+        {
+            decimal totalAmount = 0;
+            var detailResponses = new List<OrderBuyBackDetailResponse>();
+            var errorMessages = new List<string>();
+
+            foreach (var detail in request.OrderBuyBackDetails)
+            {
+                decimal price = 0;
+
+                if (detail.MaterialId.HasValue)
+                {
+                    var materialPriceResult = await CalculateMaterialPriceAsync(detail.MaterialId.Value, detail.Weight ?? 0);
+                    if (materialPriceResult.Success)
+                    {
+                        price += materialPriceResult.Price;
+                    }
+                    else
+                    {
+                        errorMessages.Add(materialPriceResult.ErrorMessage);
+                        continue;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(detail.Origin) || detail.CaratWeight.HasValue || !string.IsNullOrEmpty(detail.Color) ||
+                    !string.IsNullOrEmpty(detail.Clarity) || !string.IsNullOrEmpty(detail.Cut))
+                {
+                    if (!string.IsNullOrEmpty(detail.Origin) && detail.CaratWeight.HasValue && !string.IsNullOrEmpty(detail.Color) &&
+                        !string.IsNullOrEmpty(detail.Clarity) && !string.IsNullOrEmpty(detail.Cut))
+                    {
+                        var diamondPriceResult = await CalculateDiamondPriceAsync(
+                            detail.Origin,
+                            detail.CaratWeight.Value,
+                            detail.Color,
+                            detail.Clarity,
+                            detail.Cut
+                        );
+                        if (diamondPriceResult.Success)
+                        {
+                            price += diamondPriceResult.Price;
+                        }
+                        else
+                        {
+                            errorMessages.Add(diamondPriceResult.ErrorMessage);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(detail.Origin))
+                            errorMessages.Add("Origin is missing for diamond detail.");
+                        if (!detail.CaratWeight.HasValue)
+                            errorMessages.Add("Carat weight is missing for diamond detail.");
+                        if (string.IsNullOrEmpty(detail.Color))
+                            errorMessages.Add("Color is missing for diamond detail.");
+                        if (string.IsNullOrEmpty(detail.Clarity))
+                            errorMessages.Add("Clarity is missing for diamond detail.");
+                        if (string.IsNullOrEmpty(detail.Cut))
+                            errorMessages.Add("Cut is missing for diamond detail.");
+                        continue;
+                    }
+                }
+
+                totalAmount += price;
+
+                var orderBuyBackDetailResponse = new OrderBuyBackDetailResponse
+                {
+                    MaterialId = detail.MaterialId,
+                    Weight = detail.Weight,
+                    Origin = detail.Origin,
+                    CaratWeight = detail.CaratWeight,
+                    Color = detail.Color,
+                    Clarity = detail.Clarity,
+                    Cut = detail.Cut,
+                    Price = price
+                };
+
+                detailResponses.Add(orderBuyBackDetailResponse);
+            }
+
+            if (errorMessages.Any())
+            {
+                return new CalculatePricesResponse
+                {
+                    Errors = errorMessages
+                };
+            }
+
+            return new CalculatePricesResponse
+            {
+                TotalAmount = totalAmount,
+                OrderBuyBackDetails = detailResponses
+            };
+        }
+
+        public async Task<PriceCalculationResult> ReviewMaterialPriceAsync(int materialId, decimal weight)
+        {
+            return await CalculateMaterialPriceAsync(materialId, weight);
+        }
+
+        public async Task<PriceCalculationResult> ReviewDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut)
+        {
+            return await CalculateDiamondPriceAsync(origin, caratWeight, color, clarity, cut);
+        }
+
+        private async Task<PriceCalculationResult> CalculateMaterialPriceAsync(int materialId, decimal weight)
+        {
+            var materialPrice = await _productMaterialRepository.GetLatestMaterialPriceAsync(materialId);
+            if (materialPrice != null)
+            {
+                return new PriceCalculationResult
+                {
+                    Success = true,
+                    Price = materialPrice.BuyPrice * weight
+                };
+            }
+            return new PriceCalculationResult
+            {
+                Success = false,
+                ErrorMessage = $"Material with ID {materialId} not found."
+            };
+        }
+
+        private async Task<PriceCalculationResult> CalculateDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut)
+        {
+            var diamondPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(origin, caratWeight, color, clarity, cut);
+            if (diamondPrice != null)
+            {
+                return new PriceCalculationResult
+                {
+                    Success = true,
+                    Price = diamondPrice.BuyPrice ?? 0
+                };
+            }
+            return new PriceCalculationResult
+            {
+                Success = false,
+                ErrorMessage = $"Diamond price not found for origin {origin}, carat weight {caratWeight}, color {color}, clarity {clarity}, cut {cut}."
+            };
+        }
     }
 
 }

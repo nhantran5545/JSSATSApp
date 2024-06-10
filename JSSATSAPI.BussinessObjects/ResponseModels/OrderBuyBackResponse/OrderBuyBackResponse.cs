@@ -11,6 +11,8 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.OrderBuyBackResponse
     {
         public int OrderBuyBackId { get; set; }
         public string? CustomerId { get; set; }
+        public string? CustomerName { get; set; }
+        public string? CustomerPhone { get; set; }
         public DateTime? DateBuyBack { get; set; }
         public decimal? TotalAmount { get; set; }
         public decimal? FinalAmount { get; set; }

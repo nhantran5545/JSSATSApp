@@ -6,6 +6,7 @@ using JSSATSAPI.BussinessObjects.RequestModels.PaymentReq;
 using JSSATSAPI.BussinessObjects.RequestModels.ProductReq;
 using JSSATSAPI.BussinessObjects.ResponseModels;
 using JSSATSAPI.BussinessObjects.ResponseModels.AccountResponseModels;
+using JSSATSAPI.BussinessObjects.ResponseModels.CounterResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.CustomerResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.DiamondPriceResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.MaterialPriceResponse;
@@ -103,6 +104,12 @@ namespace JSSATSAPI.BussinessObjects.Mapper
             CreateMap<MaterialPrice, MaterialPriceResponse>()
                 .ReverseMap();
             CreateMap<OrderBuyBack, OrderBuyBackResponse>()
+                         .ForMember(dest => dest.CustomerName,
+                                    opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : string.Empty))
+                         .ForMember(dest => dest.CustomerPhone,
+                                    opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Phone : string.Empty))
+                         .ForMember(dest => dest.OrderBuyBackDetails,
+                                    opt => opt.MapFrom(src => src.OrderBuyBackDetails))
                           .ReverseMap();
             CreateMap<OrderBuyBackDetail, OrderBuyBackDetailResponse>()                       
                           .ReverseMap(); 
@@ -110,10 +117,16 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                           .ReverseMap();
             CreateMap<Material, MaterialResponse>()
                           .ReverseMap();
+            CreateMap<Counter, CounterResponse>()
+                        .ForMember(dest => dest.FirstName,
+                                    opt => opt.MapFrom(src => src.Account != null ? src.Account.FirstName : string.Empty))
+                        .ForMember(dest => dest.LastName,
+                                    opt => opt.MapFrom(src => src.Account != null ? src.Account.LastName : string.Empty))
+                        .ReverseMap();
             #endregion
             #region Mapper_Request
-        
-        CreateMap<OrderSellRequest, OrderSell>()
+
+            CreateMap<OrderSellRequest, OrderSell>()
                         .ForMember(dest => dest.OrderSellDetails, opt => opt.MapFrom(src => src.OrderSellDetails))
                         .ReverseMap();
             CreateMap<OrderSellDetailRequest, OrderSellDetail>()

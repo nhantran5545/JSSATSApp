@@ -124,12 +124,6 @@ namespace JSSATSAPI.DataAccess.Models
             {
                 entity.ToTable("Customer");
 
-                entity.HasIndex(e => e.TierId, "UQ__Customer__362F561C9BE85348")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.TierId, "UQ__Customer__362F561CA97C5919")
-                    .IsUnique();
-
                 entity.Property(e => e.CustomerId)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -144,9 +138,9 @@ namespace JSSATSAPI.DataAccess.Models
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.Tier)
-                    .WithOne(p => p.Customer)
-                    .HasForeignKey<Customer>(d => d.TierId)
-                    .HasConstraintName("FK_Customer_Tier");
+                    .WithMany(p => p.Customers)
+                    .HasForeignKey(d => d.TierId)
+                    .HasConstraintName("FK_Customer_Membership");
             });
 
             modelBuilder.Entity<Diamond>(entity =>
