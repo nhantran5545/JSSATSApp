@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JSSATSAPI.BussinessObjects.RequestModels.PaymentReq
 {
-    public class PaymentReq
+    public class PaymentRequest
     {
         public int PaymentTypeId { get; set; }
         public DateTime CreateDate { get; set; }

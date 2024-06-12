@@ -1,6 +1,7 @@
 ﻿using JSSATSAPI.BussinessObjects.IService;
 using JSSATSAPI.BussinessObjects.RequestModels.OrderBuyBackRequest;
 using JSSATSAPI.BussinessObjects.ResponseModels.OrderBuyBackResponse;
+using JSSATSAPI.BussinessObjects.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,23 +13,45 @@ namespace JSSATS_API.Controllers
     public class OrderBuyBacksController : ControllerBase
     {
         private readonly IOrderBuyBackService _orderBuyBackService;
+        private readonly IProductService _productService;
 
-        public OrderBuyBacksController(IOrderBuyBackService orderBuyBackService)
+        public OrderBuyBacksController(IOrderBuyBackService orderBuyBackService , IProductService productService)
         {
             _orderBuyBackService = orderBuyBackService;
+            _productService = productService;
         }
-
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAllOrderBuyBacks()
+        {
+            try
+            {
+                var orderSells = await _orderBuyBackService.GetAllOrderBuyBacksAsync();
+                return Ok(orderSells);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
         [HttpPost("BuyBackProductOutOfStore")]
         [Authorize(Roles = "Seller")]
         public async Task<IActionResult> BuyBackProductOutOfStore([FromBody] OrderBuyBackRequest request)
         {
-            if (request == null || request.OrderBuyBackDetails == null || !request.OrderBuyBackDetails.Any())
+            try
             {
-                return BadRequest("Invalid request.");
-            }
+                if (request == null || request.OrderBuyBackDetails == null || !request.OrderBuyBackDetails.Any())
+                {
+                    return BadRequest("Invalid request.");
+                }
 
-            var response = await _orderBuyBackService.BuyBackProductOutOfStoreAsync(request);
-            return Ok(response);
+                var response = await _orderBuyBackService.BuyBackProductOutOfStoreAsync(request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("BuyBackProductInStore")]
@@ -101,6 +124,77 @@ namespace JSSATS_API.Controllers
             }
 
             return Ok(response);
+        }
+
+        [HttpGet("CalculateBuyBackPrice/{productId}")]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> CalculateBuyBackPrice(string productId)
+        {
+            try
+            {
+                var price = await _productService.CalculateBuyBackPriceForSingleProductAsync(productId);
+                return Ok(price);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("pay")]
+        [Authorize(Roles = "Cashier")]
+        public async Task<IActionResult> PayForBuyBackOutOfStore([FromBody] PaidOrderBuyBackReq request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var response = await _orderBuyBackService.PayForBuyBackAsync(request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpPut("cancel")]
+        [Authorize(Roles = "Cashier, Seller")]
+        public async Task<IActionResult> CancelledOrderBuyBack(int orderBuyBackId)
+        {
+            try
+            {
+                var cancelledOrderBb = await _orderBuyBackService.CancelOrderBuyBackAsync(orderBuyBackId);
+                if (cancelledOrderBb.OrderBuyBackId == null)
+                {
+                    return BadRequest("OrderBuyBack not found");
+                }
+
+                return Ok(cancelledOrderBb);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpGet("{orderBuyBackId}")]
+        [Authorize]
+        public async Task<IActionResult> GetOrderBuyBackById(int orderBuyBackId)
+        {
+            try
+            {
+                var response = await _orderBuyBackService.GetOrderBuyBackById(orderBuyBackId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
         }
     }
 }

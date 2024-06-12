@@ -8,6 +8,7 @@ namespace JSSATSAPI.DataAccess.Models
         public OrderBuyBack()
         {
             OrderBuyBackDetails = new HashSet<OrderBuyBackDetail>();
+            Payments = new HashSet<Payment>();
         }
 
         public int OrderBuyBackId { get; set; }
@@ -19,5 +20,6 @@ namespace JSSATSAPI.DataAccess.Models
 
         public virtual Customer? Customer { get; set; }
         public virtual ICollection<OrderBuyBackDetail> OrderBuyBackDetails { get; set; }
+        public virtual ICollection<Payment> Payments { get; set; }
     }
 }

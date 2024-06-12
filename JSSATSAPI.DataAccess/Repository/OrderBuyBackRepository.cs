@@ -15,5 +15,27 @@ namespace JSSATSAPI.DataAccess.Repository
         {
         }
 
+        public override async Task<IEnumerable<OrderBuyBack>> GetAllAsync()
+        {
+            return await _context.OrderBuyBacks
+                .Include(b => b.Customer)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
+                .Include(b => b.OrderBuyBackDetails)
+                .ThenInclude(b => b.Product)
+                .ToListAsync();
+        }
+
+        public override async Task<OrderBuyBack?> GetByIdAsync(object id)
+        {
+            return await _context.OrderBuyBacks
+                .Include(b => b.Customer)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
+                .Include(b => b.OrderBuyBackDetails)
+                .ThenInclude(b => b.Product)
+                .Where(br => br.OrderBuyBackId.Equals(id))
+                .FirstOrDefaultAsync();
+        }
     }
 }

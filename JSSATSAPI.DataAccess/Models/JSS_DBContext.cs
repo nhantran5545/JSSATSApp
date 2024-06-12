@@ -40,6 +40,11 @@ namespace JSSATSAPI.DataAccess.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=WITHNHAN\\WTIHNHAN;Initial Catalog=JSS_DB;Persist Security Info=False;User ID=sa;Password=123456;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -394,10 +399,14 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.Property(e => e.OrderSellId).HasColumnName("OrderSellID");
 
+                entity.HasOne(d => d.OrderBuyBack)
+                    .WithMany(p => p.Payments)
+                    .HasForeignKey(d => d.OrderBuyBackId)
+                    .HasConstraintName("FK_Payment_OrderBuyBack");
+
                 entity.HasOne(d => d.OrderSell)
                     .WithMany(p => p.Payments)
                     .HasForeignKey(d => d.OrderSellId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Payment_Order");
 
                 entity.HasOne(d => d.PaymentType)

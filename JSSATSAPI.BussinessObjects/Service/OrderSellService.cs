@@ -46,7 +46,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             var orderSellDetails = request.OrderSellDetails.Select(detail => new OrderSellDetail
             {
                 ProductId = detail.ProductId,
-                Quantity = 1  
+                Quantity = 1
             }).ToList();
 
             decimal totalAmount = 0;
@@ -84,29 +84,33 @@ namespace JSSATSAPI.BussinessObjects.Service
                 tierDiscountPercent = customer.Tier.DiscountPercent;
                 membershipDiscount = totalAmount * (tierDiscountPercent ?? 0) / 100;
             }
+
             decimal individualPromotionDiscountPercent = request.InvidualPromotionDiscount ?? 0;
-            decimal invidualPromotionDiscountAmount = totalAmount * individualPromotionDiscountPercent / 100;
-            var finalAmount = totalAmount - invidualPromotionDiscountAmount - membershipDiscount;
+            decimal individualPromotionDiscountAmount = totalAmount * individualPromotionDiscountPercent   / 100;
+            var finalAmount = totalAmount - individualPromotionDiscountAmount - membershipDiscount;
 
             int sellerId = _accountService.GetAccountIdFromToken();
+
+            string status = string.IsNullOrEmpty(request.PromotionReason) && !request.InvidualPromotionDiscount.HasValue
+                            ? "Processing"
+                            : "Approval";
 
             var orderSell = new OrderSell
             {
                 CustomerId = request.CustomerId,
                 SellerId = sellerId,
                 TotalAmount = totalAmount,
-                InvidualPromotionDiscount = individualPromotionDiscountPercent,
+                InvidualPromotionDiscount = individualPromotionDiscountAmount,
                 PromotionReason = request.PromotionReason ?? string.Empty,
                 MemberShipDiscount = membershipDiscount,
                 FinalAmount = finalAmount,
                 OrderDate = DateTime.Now,
-                Status = "Processing",
+                Status = status,
                 OrderSellDetails = orderSellDetails,
             };
 
             _orderSellRepository.AddOrderSell(orderSell);
             _orderSellRepository.SaveChanges();
-
 
             var seller = _accountRepository.GetAccountById(sellerId);
             var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
@@ -115,20 +119,26 @@ namespace JSSATSAPI.BussinessObjects.Service
             return orderSellResponse;
         }
 
+
+
+
         //Manager update IndividualPromotion
-        public async Task UpdateIndividualPromotionDiscountAsync(int orderSellId, decimal newDiscount)
+        public async Task UpdateIndividualPromotionDiscountAsync(int orderSellId, decimal? newDiscount)
         {
             var orderSell = await _orderSellRepository.GetByIdAsync(orderSellId);
             if (orderSell == null)
             {
                 throw new Exception("Order not found");
             }
+            if (newDiscount.HasValue)
+            {
+                decimal newDiscountAmount = (orderSell.TotalAmount * newDiscount / 100 ?? 0);
 
-            decimal newDiscountAmount = (orderSell.TotalAmount * newDiscount / 100 ?? 0);
-            orderSell.InvidualPromotionDiscount = newDiscount;
-            orderSell.FinalAmount = orderSell.TotalAmount - newDiscountAmount - (orderSell.MemberShipDiscount ?? 0);
-
-             _orderSellRepository.Update(orderSell);
+                orderSell.FinalAmount = orderSell.TotalAmount - newDiscountAmount - (orderSell.MemberShipDiscount ?? 0);
+                orderSell.InvidualPromotionDiscount = newDiscountAmount;
+                orderSell.Status = "Approved";
+            }
+            _orderSellRepository.Update(orderSell);
              _orderSellRepository.SaveChanges();
         }
 
@@ -145,7 +155,6 @@ namespace JSSATSAPI.BussinessObjects.Service
                 throw new InvalidOperationException("Cannot mark a cancelled or delivered order as paid.");
             }
 
-            // Kiểm tra nếu đơn hàng đã được thanh toán
             if (orderSell.Status == "Paid")
             {
                 throw new InvalidOperationException("Order has already been paid.");
@@ -178,10 +187,6 @@ namespace JSSATSAPI.BussinessObjects.Service
             orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
             return orderSellResponse;
         }
-
-
-
-
 
         public async Task<OrderSellResponse> CancelOrderSellAsync(int orderSellId)
         {
@@ -221,7 +226,6 @@ namespace JSSATSAPI.BussinessObjects.Service
             orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
             return orderSellResponse;
         }
-
 
         public async Task<OrderSellResponse> DeliveredOrderSellAsync(int orderSellId)
         {
@@ -291,7 +295,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             return orderSellResponses;
         }
 
-        public async Task<OrderSellResponse> GetOrderSellById(string orderSellId)
+        public async Task<OrderSellResponse> GetOrderSellById(int orderSellId)
         {
             var orderSell = await _orderSellRepository.GetByIdAsync(orderSellId);
             var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
@@ -300,9 +304,39 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             return orderSellResponse;
         }
+
+
         public async Task<IEnumerable<OrderSellResponse>> GetOrderSellBySellerId(int sellerId)
         {
             var orderSells = await _orderSellRepository.GetAllOrderSellBySellerAsync(sellerId);
+            var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orderSells);
+
+            foreach (var response in orderSellResponses)
+            {
+                var customer = await _customerRepository.GetByIdAsync(response.CustomerId);
+                response.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+            }
+
+            return orderSellResponses;
+        }
+
+        public async Task<IEnumerable<OrderSellResponse>> GetOrderSellDeliveredBySellerId(int sellerId)
+        {
+            var orderSells = await _orderSellRepository.GetAllOrderSellDeliveredBySellerAsync(sellerId);
+            var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orderSells);
+
+            foreach (var response in orderSellResponses)
+            {
+                var customer = await _customerRepository.GetByIdAsync(response.CustomerId);
+                response.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+            }
+
+            return orderSellResponses;
+        }
+
+        public async Task<IEnumerable<OrderSellResponse>> GetOrderSellProcessingBySellerId(int sellerId)
+        {
+            var orderSells = await _orderSellRepository.GetAllOrderSellProcessingBySellerAsync(sellerId);
             var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orderSells);
 
             foreach (var response in orderSellResponses)

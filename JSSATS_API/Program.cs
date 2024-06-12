@@ -108,6 +108,7 @@ builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<IOrderBuyBackService, OrderBuyBackService>();
 builder.Services.AddScoped<IBarCodeService, BarcodeService>();
 builder.Services.AddScoped<ICounterService, CounterService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 
 builder.Services.AddSingleton<BarcodeService>();

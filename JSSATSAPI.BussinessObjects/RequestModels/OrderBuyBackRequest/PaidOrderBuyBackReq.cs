@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JSSATSAPI.BussinessObjects.ResponseModels.OrderSellResponse
+namespace JSSATSAPI.BussinessObjects.RequestModels.OrderBuyBackRequest
 {
-    public class CompletedOrderSellResponse
+    public class PaidOrderBuyBackReq
     {
-        public int OrderSellId { get; set; }
+        public int OrderBuyBackId { get; set; }
         public List<PaymentRequest> Payments { get; set; } = new();
     }
 }

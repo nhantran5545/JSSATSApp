@@ -180,16 +180,15 @@ namespace JSSATSAPI.BussinessObjects.Service
                 MaterialCost = request.MaterialCost,
                 DiamondCost = request.DiamondCost,
                 ProductionCost = request.ProductionCost,
-                Quantity = request.Quantity,
+                Quantity = 1,
                 Status = "Còn hàng",
                 PriceRate = request.PriceRate
             };
 
             await _productRepository.AddAsync(product);
-            _productRepository.SaveChanges();
+             _productRepository.SaveChanges();
 
-
-            if (request.Diamonds != null)
+            if (request.Diamonds != null && request.Diamonds.Any())
             {
                 foreach (var diamond in request.Diamonds)
                 {
@@ -199,11 +198,11 @@ namespace JSSATSAPI.BussinessObjects.Service
                         DiamondCode = diamond.DiamondCode,
                     };
                     await _productDiamondRepository.AddProductDiamondAsync(productDiamond);
-                    _productDiamondRepository.SaveChanges();
                 }
+                 _productDiamondRepository.SaveChanges();
             }
 
-            if (request.Materials != null)
+            if (request.Materials != null && request.Materials.Any())
             {
                 foreach (var material in request.Materials)
                 {
@@ -214,8 +213,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                         Weight = material.Weight
                     };
                     await _productMaterialRepository.AddProductMaterialAsync(productMaterial);
-                    _productMaterialRepository.SaveChanges();
                 }
+                 _productMaterialRepository.SaveChanges();
             }
 
             return new ProductResponse
@@ -234,6 +233,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 Status = product.Status,
             };
         }
+
 
 
 

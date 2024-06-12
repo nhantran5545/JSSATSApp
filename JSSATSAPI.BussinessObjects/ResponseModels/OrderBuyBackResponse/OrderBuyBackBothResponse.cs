@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace JSSATSAPI.BussinessObjects.ResponseModels.OrderBuyBackResponse
 {
-    public class OrderBuyBackInStoreResponse
+    public class OrderBuyBackBothResponse
     {
         public int OrderBuyBackId { get; set; }
         public string CustomerId { get; set; }

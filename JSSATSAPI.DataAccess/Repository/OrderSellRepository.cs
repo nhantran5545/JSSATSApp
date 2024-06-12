@@ -54,7 +54,35 @@ namespace JSSATSAPI.DataAccess.Repository
                 .ThenInclude(b => b.PaymentType)
                 .Include(b => b.OrderSellDetails)
                 .ThenInclude(b => b.Product)
-                .Where(br => br.SellerId.Equals(sellerId))
+                .Where(br => br.SellerId.Equals(sellerId) && br.Status == "Paid")
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<OrderSell>> GetAllOrderSellDeliveredBySellerAsync(int sellerId)
+        {
+            return await _context.OrderSells
+                .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
+                .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
+                .Include(b => b.OrderSellDetails)
+                .ThenInclude(b => b.Product)
+                .Where(br => br.SellerId.Equals(sellerId) && br.Status == "Delivered")
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<OrderSell>> GetAllOrderSellProcessingBySellerAsync(int sellerId)
+        {
+            return await _context.OrderSells
+                .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
+                .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
+                .Include(b => b.OrderSellDetails)
+                .ThenInclude(b => b.Product)
+                .Where(br => br.SellerId.Equals(sellerId) && br.Status == "Processing")
                 .ToListAsync();
         }
 
@@ -80,7 +108,7 @@ namespace JSSATSAPI.DataAccess.Repository
         {
             _context.OrderSellDetails.Add(orderSellDetail);
         }
-
+        
         public Product GetProductById(string productId)
         {
             return _context.Products.SingleOrDefault(p => p.ProductId == productId);

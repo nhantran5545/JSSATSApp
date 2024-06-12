@@ -27,7 +27,7 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Manager, Cashier")]
+        [Authorize]
         public async Task<IActionResult> GetAllOrderSells()
         {
             try
@@ -43,7 +43,7 @@ namespace JSSATS_API.Controllers
 
         [HttpGet("{orderSellsId}")]
         [Authorize]
-        public async Task<IActionResult> GetOrderSellById(string orderSellsId)
+        public async Task<IActionResult> GetOrderSellById(int orderSellsId)
         {
             try
             {
@@ -63,12 +63,52 @@ namespace JSSATS_API.Controllers
 
         [HttpGet("orderSellBySeller")]
         [Authorize]
-        public async Task<IActionResult> GetOrderSellBySellerId()
+        public async Task<IActionResult> GetOrderSellPaidBySellerId()
         {
             try
             {
                 var sellerId =  _accountService.GetAccountIdFromToken();
                 var orderSells = await _orderSellService.GetOrderSellBySellerId(sellerId);
+                if (orderSells == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orderSells);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("orderSellProcessingBySeller")]
+        [Authorize]
+        public async Task<IActionResult> GetOrderSellProcessingBySellerId()
+        {
+            try
+            {
+                var sellerId = _accountService.GetAccountIdFromToken();
+                var orderSells = await _orderSellService.GetOrderSellProcessingBySellerId(sellerId);
+                if (orderSells == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orderSells);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("orderSellDeliveredBySeller")]
+        [Authorize]
+        public async Task<IActionResult> GetOrderSellDeliveredBySellerId()
+        {
+            try
+            {
+                var sellerId = _accountService.GetAccountIdFromToken();
+                var orderSells = await _orderSellService.GetOrderSellDeliveredBySellerId(sellerId);
                 if (orderSells == null)
                 {
                     return NotFound();
@@ -98,13 +138,20 @@ namespace JSSATS_API.Controllers
 
         [HttpPut("update-discount/{orderSellId}")]
         [Authorize]
-        public async Task<IActionResult> UpdateIndividualPromotionDiscountAsync(int orderSellId, [FromBody] decimal newDiscount)
+        public async Task<IActionResult> UpdateIndividualPromotionDiscountAsync(int orderSellId, [FromBody] decimal? newDiscount)
         {
             try
             {
-                await _orderSellService.UpdateIndividualPromotionDiscountAsync(orderSellId, newDiscount);
+                if (newDiscount.HasValue)
+                {
+                    await _orderSellService.UpdateIndividualPromotionDiscountAsync(orderSellId, newDiscount);
+                }
+                else
+                {
+                    return NoContent();
+                }
 
-                return Ok("Update discount successful");
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -146,7 +193,7 @@ namespace JSSATS_API.Controllers
             }
         }
 
-        [HttpPost("deliveried")]
+        [HttpPut("deliveried")]
         [Authorize(Roles = "Seller")]
         public async Task<IActionResult> DeliveriedOrderSell(int orderSellId)
         {
@@ -165,8 +212,8 @@ namespace JSSATS_API.Controllers
             }
         }
 
-        [HttpPost("cancel")]
-        [Authorize(Roles = "Cashier")]
+        [HttpPut("cancel")]
+        [Authorize(Roles = "Cashier, Seller")]
         public async Task<IActionResult> CancelledOrderSell( int orderSellId)
         {
             try

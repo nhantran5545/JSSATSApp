@@ -16,10 +16,8 @@ namespace JSSATSAPI.BussinessObjects.RequestModels.ProductReq
         public decimal? MaterialCost { get; set; }
         public decimal? DiamondCost { get; set; }
         public decimal? ProductionCost { get; set; }
-        public int? Quantity { get; set; }
-        public string? Status { get; set; }
         public decimal? PriceRate { get; set; }
-        public List<ProductMaterialRequest> Materials { get; set; }
-        public List<ProductDiamondRequest> Diamonds { get; set; }
+        public List<ProductMaterialRequest> Materials { get; set; } = new List<ProductMaterialRequest>();
+        public List<ProductDiamondRequest> Diamonds { get; set; } = new List<ProductDiamondRequest>();
     }
 }

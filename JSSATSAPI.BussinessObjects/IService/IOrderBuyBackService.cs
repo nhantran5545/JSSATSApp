@@ -12,7 +12,11 @@ namespace JSSATSAPI.BussinessObjects.IService
     {
         Task<OrderBuyBackResponse> BuyBackProductOutOfStoreAsync(OrderBuyBackRequest request);
         Task<CalculatePricesResponse> CalculatePricesAsync(OrderBuyBackRequest request);
+        Task<OrderBuyBackBothResponse> CancelOrderBuyBackAsync(int orderBbId);
         Task<OrderBuyBackInStoreResponse> CreateOrderBuyBackInStoreAsync(OrderBuyBackInStoreRequest request);
+        Task<List<OrderBuyBackBothResponse>> GetAllOrderBuyBacksAsync();
+        Task<OrderBuyBackBothResponse> GetOrderBuyBackById(int orderBuyBackId);
+        Task<OrderBuyBackBothResponse> PayForBuyBackAsync(PaidOrderBuyBackReq request);
         Task<PriceCalculationResult> ReviewDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut);
         Task<PriceCalculationResult> ReviewMaterialPriceAsync(int materialId, decimal weight);
     }

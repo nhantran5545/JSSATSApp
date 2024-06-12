@@ -10,7 +10,7 @@ namespace JSSATSAPI.BussinessObjects.RequestModels.ProductReq
     [Keyless]
     public class ProductMaterialRequest
     {
-        public int MaterialId { get; set; }
+        public int? MaterialId { get; set; }
         public decimal? Weight { get; set; }
     }
 }
