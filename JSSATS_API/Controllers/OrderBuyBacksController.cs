@@ -14,11 +14,13 @@ namespace JSSATS_API.Controllers
     {
         private readonly IOrderBuyBackService _orderBuyBackService;
         private readonly IProductService _productService;
+        private readonly IInvoiceService _invoiceService;
 
-        public OrderBuyBacksController(IOrderBuyBackService orderBuyBackService , IProductService productService)
+        public OrderBuyBacksController(IOrderBuyBackService orderBuyBackService , IProductService productService , IInvoiceService invoiceService)
         {
             _orderBuyBackService = orderBuyBackService;
             _productService = productService;
+            _invoiceService = invoiceService;
         }
         [HttpGet]
         [Authorize]
@@ -194,6 +196,21 @@ namespace JSSATS_API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("invoice/pdf/{orderBuyBackId}")]
+        public async Task<IActionResult> GetOrderBuyBackInvoicePdf(int orderBuyBackId)
+        {
+            try
+            {
+                var pdfBytes = await _invoiceService.GenerateOrderBuyBackInvoicePdfAsync(orderBuyBackId);
+                return File(pdfBytes, "application/pdf", $"OrderBuyBackInvoice_{orderBuyBackId}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

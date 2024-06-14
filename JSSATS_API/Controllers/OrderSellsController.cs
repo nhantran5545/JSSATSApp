@@ -121,6 +121,65 @@ namespace JSSATS_API.Controllers
             }
         }
 
+        [HttpGet("allOrderSellDelivered")]
+        [Authorize]
+        public async Task<IActionResult> GetOrderSellDelivered()
+        {
+            try
+            {
+                var orderSells = await _orderSellService.GetOrderSellDelivered();
+                if (orderSells == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orderSells);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("allOrderSellApproval")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetOrderSellApproval()
+        {
+            try
+            {
+                var orderSells = await _orderSellService.GetOrderSellApproval();
+                if (orderSells == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orderSells);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+
+        [HttpGet("allOrderSellApproved")]
+        [Authorize]
+        public async Task<IActionResult> GetOrderSellApproved()
+        {
+            try
+            {
+                var orderSells = await _orderSellService.GetOrderSellApproved();
+                if (orderSells == null)
+                {
+                    return NotFound();
+                }
+                return Ok(orderSells);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("create")]
         [Authorize(Roles = "Seller")]
         public IActionResult CreateSellOrder([FromBody] OrderSellRequest request)
@@ -148,7 +207,7 @@ namespace JSSATS_API.Controllers
                 }
                 else
                 {
-                    return NoContent();
+                    return Ok("Update discount successfully");
                 }
 
                 return NoContent();

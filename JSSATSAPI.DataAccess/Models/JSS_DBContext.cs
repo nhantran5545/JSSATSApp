@@ -43,7 +43,7 @@ namespace JSSATSAPI.DataAccess.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=WITHNHAN\\WTIHNHAN;Initial Catalog=JSS_DB;Persist Security Info=False;User ID=sa;Password=123456;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;");
+                optionsBuilder.UseSqlServer("Server=tcp:jssatssv.database.windows.net,1433;Initial Catalog=JSS_DB;Persist Security Info=False;User ID=nhanjssats123;Password=Nhan@123456;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             }
         }
 
@@ -87,6 +87,8 @@ namespace JSSATSAPI.DataAccess.Models
                 entity.Property(e => e.CategoryName).HasMaxLength(255);
 
                 entity.Property(e => e.CategoryTypeId).HasColumnName("CategoryTypeID");
+
+                entity.Property(e => e.DiscountRate).HasColumnType("decimal(5, 2)");
 
                 entity.Property(e => e.Status).HasMaxLength(50);
 
@@ -157,7 +159,9 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.Property(e => e.DiamondCode).HasMaxLength(255);
 
-                entity.Property(e => e.CaratWeight).HasColumnType("decimal(10, 2)");
+                entity.Property(e => e.CaratWeightFrom).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.CaratWeightTo).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.Clarity).HasMaxLength(50);
 
@@ -186,7 +190,9 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.Property(e => e.BuyPrice).HasColumnType("decimal(19, 4)");
 
-                entity.Property(e => e.CaratWeight).HasColumnType("decimal(10, 2)");
+                entity.Property(e => e.CaratWeightFrom).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.CaratWeightTo).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.Clarity).HasMaxLength(50);
 
@@ -242,7 +248,7 @@ namespace JSSATSAPI.DataAccess.Models
             modelBuilder.Entity<Membership>(entity =>
             {
                 entity.HasKey(e => e.TierId)
-                    .HasName("PK__Membersh__362F561D2E5AD5CE");
+                    .HasName("PK__Membersh__362F561D284E7F0F");
 
                 entity.ToTable("Membership");
 
@@ -282,7 +288,7 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.Property(e => e.OrderBuyBackDetailId).HasColumnName("OrderBuyBackDetailID");
 
-                entity.Property(e => e.BuyBackProductName).HasColumnType("decimal(19, 4)");
+                entity.Property(e => e.BuyBackProductName).HasMaxLength(255);
 
                 entity.Property(e => e.CaratWeight).HasColumnType("decimal(10, 2)");
 
@@ -397,6 +403,8 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
+                entity.Property(e => e.OrderBuyBackId).HasColumnName("OrderBuyBackID");
+
                 entity.Property(e => e.OrderSellId).HasColumnName("OrderSellID");
 
                 entity.HasOne(d => d.OrderBuyBack)
@@ -431,6 +439,8 @@ namespace JSSATSAPI.DataAccess.Models
                 entity.Property(e => e.ProductId)
                     .HasMaxLength(100)
                     .IsUnicode(false);
+
+                entity.Property(e => e.BuyBackPrice).HasColumnType("decimal(19, 4)");
 
                 entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
 
@@ -469,10 +479,10 @@ namespace JSSATSAPI.DataAccess.Models
 
                 entity.ToTable("ProductDiamond");
 
-                entity.HasIndex(e => e.DiamondCode, "UQ__ProductD__1A0326023191E949")
+                entity.HasIndex(e => e.DiamondCode, "UQ__ProductD__1A0326027041BEA4")
                     .IsUnique();
 
-                entity.HasIndex(e => e.DiamondCode, "UQ__ProductD__1A0326028DF3D0AA")
+                entity.HasIndex(e => e.DiamondCode, "UQ__ProductD__1A03260277763592")
                     .IsUnique();
 
                 entity.Property(e => e.DiamondCode).HasMaxLength(255);
@@ -518,12 +528,12 @@ namespace JSSATSAPI.DataAccess.Models
             modelBuilder.Entity<WarrantyTicket>(entity =>
             {
                 entity.HasKey(e => e.WarrantyId)
-                    .HasName("PK__Warranty__2ED31813CD36240A");
+                    .HasName("PK__Warranty__2ED318131B8795D8");
 
-                entity.HasIndex(e => e.ProductId, "UQ__Warranty__B40CC6EC5B809D60")
+                entity.HasIndex(e => e.ProductId, "UQ__Warranty__B40CC6ECC14EC330")
                     .IsUnique();
 
-                entity.HasIndex(e => e.ProductId, "UQ__Warranty__B40CC6EC75FB568A")
+                entity.HasIndex(e => e.ProductId, "UQ__Warranty__B40CC6ECE2187398")
                     .IsUnique();
 
                 entity.Property(e => e.OrderSellDetailId).HasColumnName("OrderSellDetailID");

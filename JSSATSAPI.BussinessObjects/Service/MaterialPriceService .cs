@@ -6,6 +6,7 @@ using JSSATSAPI.BussinessObjects.ResponseModels.MaterialPriceResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.MaterialResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.PaymentTypeResponse;
 using JSSATSAPI.DataAccess.IRepository;
+using JSSATSAPI.DataAccess.Models;
 using JSSATSAPI.DataAccess.Repository;
 using System;
 using System.Collections.Generic;
@@ -38,5 +39,25 @@ namespace JSSATSAPI.BussinessObjects.Service
             return _mapper.Map<IEnumerable<Material1Response>>(materials);
         }
 
+        public async Task UpdateMaterialPriceAsync(int materialPriceId, decimal buyPrice, decimal sellPrice, DateTime effDate)
+        {
+            if (effDate < DateTime.Today)
+            {
+                throw new ArgumentException("Effective date must be greater than or equal to the current date.");
+            }
+
+            var materialPrice = await _materialPriceRepository.GetByIdAsync(materialPriceId);
+            if (materialPrice == null)
+            {
+                throw new Exception($"MaterialPrice with ID {materialPriceId} not found.");
+            }
+
+            materialPrice.BuyPrice = buyPrice;
+            materialPrice.SellPrice = sellPrice;
+            materialPrice.EffDate = effDate;
+
+             _materialPriceRepository.Update(materialPrice);
+            _materialPriceRepository.SaveChanges();
+        }
     }
 }

@@ -39,12 +39,13 @@ namespace JSSATSAPI.DataAccess.Repository
                                           .FirstOrDefaultAsync(p => p.ProductId == productId);
         }
 
-        public async Task UpdateProductPrice(string productId, decimal productPrice)
+        public async Task UpdateProductPrice(string productId, decimal productPrice, decimal buybackPrice)
         {
             var product = await _context.Products.FindAsync(productId);
             if (product != null)
             {
                 product.ProductPrice = productPrice;
+                product.BuyBackPrice = buybackPrice;
                 await _context.SaveChangesAsync();
             }
         }

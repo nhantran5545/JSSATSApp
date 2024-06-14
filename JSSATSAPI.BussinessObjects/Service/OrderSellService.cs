@@ -85,13 +85,13 @@ namespace JSSATSAPI.BussinessObjects.Service
                 membershipDiscount = totalAmount * (tierDiscountPercent ?? 0) / 100;
             }
 
-            decimal individualPromotionDiscountPercent = request.InvidualPromotionDiscount ?? 0;
-            decimal individualPromotionDiscountAmount = totalAmount * individualPromotionDiscountPercent   / 100;
-            var finalAmount = totalAmount - individualPromotionDiscountAmount - membershipDiscount;
+/*            decimal individualPromotionDiscountPercent = request.InvidualPromotionDiscount ?? 0;
+            decimal individualPromotionDiscountAmount = totalAmount * individualPromotionDiscountPercent   / 100;*/
+            var finalAmount = totalAmount - membershipDiscount;
 
             int sellerId = _accountService.GetAccountIdFromToken();
 
-            string status = string.IsNullOrEmpty(request.PromotionReason) && !request.InvidualPromotionDiscount.HasValue
+            string status = string.IsNullOrEmpty(request.PromotionReason)
                             ? "Processing"
                             : "Approval";
 
@@ -100,7 +100,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 CustomerId = request.CustomerId,
                 SellerId = sellerId,
                 TotalAmount = totalAmount,
-                InvidualPromotionDiscount = individualPromotionDiscountAmount,
+/*              InvidualPromotionDiscount = individualPromotionDiscountAmount,*/
                 PromotionReason = request.PromotionReason ?? string.Empty,
                 MemberShipDiscount = membershipDiscount,
                 FinalAmount = finalAmount,
@@ -164,7 +164,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             {
                 var payment = _mapper.Map<Payment>(paymentDto);
                 payment.OrderSellId = completedOrderSellDto.OrderSellId;
-                payment.Amount = orderSell.FinalAmount;
+                payment.Amount = orderSell.FinalAmount ?? 0;
                 await _paymentRepository.AddPaymentAsync(payment);
             }
 
@@ -284,6 +284,50 @@ namespace JSSATSAPI.BussinessObjects.Service
         public async Task<IEnumerable<OrderSellResponse>> GetOrderSells()
         {
             var orderSells = await _orderSellRepository.GetAllAsync();
+            var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orderSells);
+
+            foreach (var response in orderSellResponses)
+            {
+                var customer = await _customerRepository.GetByIdAsync(response.CustomerId);
+                response.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+            }
+
+            return orderSellResponses;
+        }
+
+
+        public async Task<IEnumerable<OrderSellResponse>> GetOrderSellDelivered()
+        {
+            var orderSells = await _orderSellRepository.GetAllOrderSellDeliveredAsync();
+            var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orderSells);
+
+            foreach (var response in orderSellResponses)
+            {
+                var customer = await _customerRepository.GetByIdAsync(response.CustomerId);
+                response.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+            }
+
+            return orderSellResponses;
+        }
+
+
+        public async Task<IEnumerable<OrderSellResponse>> GetOrderSellApproval()
+        {
+            var orderSells = await _orderSellRepository.GetAllOrderSellApprovalAsync();
+            var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orderSells);
+
+            foreach (var response in orderSellResponses)
+            {
+                var customer = await _customerRepository.GetByIdAsync(response.CustomerId);
+                response.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
+            }
+
+            return orderSellResponses;
+        }
+
+        public async Task<IEnumerable<OrderSellResponse>> GetOrderSellApproved()
+        {
+            var orderSells = await _orderSellRepository.GetAllOrderSellApprovedAsync();
             var orderSellResponses = _mapper.Map<IEnumerable<OrderSellResponse>>(orderSells);
 
             foreach (var response in orderSellResponses)

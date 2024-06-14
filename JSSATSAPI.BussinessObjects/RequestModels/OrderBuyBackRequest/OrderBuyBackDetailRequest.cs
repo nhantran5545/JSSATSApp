@@ -8,8 +8,8 @@ namespace JSSATSAPI.BussinessObjects.RequestModels.OrderBuyBackRequest
 {
     public class OrderBuyBackDetailRequest
     {
+        public string? BuyBackProductName { get; set; }
         public int? MaterialId { get; set; }
-        public int? Quantity { get; set; }
         public decimal? Weight { get; set; }
         public string? Origin { get; set; }
         public decimal? CaratWeight { get; set; }

@@ -19,6 +19,7 @@ namespace JSSATSAPI.BussinessObjects.Service
     public class OrderBuyBackService : IOrderBuyBackService
     {
         private readonly IOrderBuyBackRepository _orderBuyBackRepository;
+        private readonly IOrderSellDetailRepository _orderSellDetail;
         private readonly IProductRepository _productRepository;
         private readonly IMaterialPriceRepository _materialPriceRepository;
         private readonly ICustomerRepository _customerRepository;
@@ -35,7 +36,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             IProductMaterialRepository productMaterialRepository,
             IMaterialRepository materialRepository,
             IDiamondPriceRepository diamondPriceRepository, IMapper mapper,
-            IAccountService accountService, IProductService productService, ICustomerRepository customerRepository, IPaymentRepository paymentRepository)
+            IAccountService accountService, IProductService productService, ICustomerRepository customerRepository, IPaymentRepository paymentRepository, IOrderSellDetailRepository orderSellDetail)
         {
             _orderBuyBackRepository = orderBuyBackRepository;
             _productRepository = productRepository;
@@ -48,6 +49,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             _customerRepository = customerRepository;
             _materialRepository = materialRepository;
             _paymentRepository = paymentRepository;
+            _orderSellDetail = orderSellDetail;
         }
 
         public async Task<List<OrderBuyBackBothResponse>> GetAllOrderBuyBacksAsync()
@@ -90,8 +92,9 @@ namespace JSSATSAPI.BussinessObjects.Service
 
                 var orderBuyBackDetail = new OrderBuyBackDetail
                 {
+                    BuyBackProductName = detail.BuyBackProductName ?? null,
                     MaterialId = detail.MaterialId ?? null,
-                    Quantity = detail.Quantity ?? 1,
+                    Quantity =  1,
                     Weight = detail.Weight ?? null, 
                     Origin = detail.Origin ?? null,
                     CaratWeight = detail.CaratWeight ?? null, 
@@ -152,7 +155,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             if (!string.IsNullOrEmpty(detail.Origin) && detail.CaratWeight.HasValue && !string.IsNullOrEmpty(detail.Color) &&
                 !string.IsNullOrEmpty(detail.Clarity) && !string.IsNullOrEmpty(detail.Cut))
             {
-                var diamondPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(
+                var diamondPrice = await _diamondPriceRepository.GetBuyPriceDiamondPriceAsync(
                     detail.Origin,
                     detail.CaratWeight.Value,
                     detail.Color,
@@ -173,7 +176,6 @@ namespace JSSATSAPI.BussinessObjects.Service
         }
 
 
-
         public async Task<OrderBuyBackInStoreResponse> CreateOrderBuyBackInStoreAsync(OrderBuyBackInStoreRequest request)
         {
             var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
@@ -184,6 +186,9 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             var orderBuyBackDetails = new List<OrderBuyBackDetail>();
             decimal totalAmount = 0;
+            decimal buyBackPriceTotal = 0;
+            decimal productPriceTotal = 0;
+            decimal discountRate = 0;
 
             foreach (var productId in request.ProductIds)
             {
@@ -192,27 +197,34 @@ namespace JSSATSAPI.BussinessObjects.Service
                 {
                     throw new Exception($"Product with ID {productId} not found");
                 }
-
                 var buyBackPrice = await _productService.CalculateBuyBackPriceForSingleProductAsync(productId);
-                totalAmount += buyBackPrice;
+
+                var productPrice = product.ProductPrice ?? 0;
+                var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
+                var discountRateDecimal = categoryDiscountRate / 100;
+
+                var discountPrice = buyBackPrice + ((productPrice - buyBackPrice) * discountRateDecimal);
+
+                buyBackPriceTotal += buyBackPrice;
+                productPriceTotal += productPrice;
+                discountRate += categoryDiscountRate;
+                totalAmount += discountPrice;
 
                 var orderBuyBackDetail = new OrderBuyBackDetail
                 {
                     ProductId = productId,
-                    Price = buyBackPrice,
+                    Price = discountPrice,
                 };
 
                 orderBuyBackDetails.Add(orderBuyBackDetail);
             }
-
-            var finalAmount = totalAmount;
 
             var orderBuyBack = new OrderBuyBack
             {
                 CustomerId = request.CustomerId,
                 DateBuyBack = DateTime.UtcNow,
                 TotalAmount = totalAmount,
-                FinalAmount = finalAmount,
+                FinalAmount = totalAmount,
                 Status = "Processing",
                 OrderBuyBackDetails = orderBuyBackDetails
             };
@@ -220,9 +232,16 @@ namespace JSSATSAPI.BussinessObjects.Service
             await _orderBuyBackRepository.AddAsync(orderBuyBack);
             _orderBuyBackRepository.SaveChanges();
 
+
             var response = _mapper.Map<OrderBuyBackInStoreResponse>(orderBuyBack);
+            response.BuyBackPriceTotal = buyBackPriceTotal;
+            response.ProductPriceTotal = productPriceTotal;
+            response.DiscountRate = discountRate;
+
+
             return response;
         }
+
 
         public async Task<OrderBuyBackBothResponse> PayForBuyBackAsync(PaidOrderBuyBackReq request)
         {
@@ -242,7 +261,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 var payment = _mapper.Map<Payment>(paymentReq);
                 payment.CreateDate = DateTime.Now;
                 payment.OrderBuyBackId = request.OrderBuyBackId;
-                payment.Amount = orderBuyBack.FinalAmount;
+                payment.Amount = orderBuyBack.FinalAmount ?? 0;
                 await _paymentRepository.AddAsync(payment);
             }
 
@@ -395,7 +414,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
         private async Task<PriceCalculationResult> CalculateDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut)
         {
-            var diamondPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(origin, caratWeight, color, clarity, cut);
+            var diamondPrice = await _diamondPriceRepository.GetBuyPriceDiamondPriceAsync(origin, caratWeight, color, clarity, cut);
             if (diamondPrice != null)
             {
                 return new PriceCalculationResult
@@ -410,8 +429,6 @@ namespace JSSATSAPI.BussinessObjects.Service
                 ErrorMessage = $"Diamond price not found for origin {origin}, carat weight {caratWeight}, color {color}, clarity {clarity}, cut {cut}."
             };
         }
-
-
     }
 
 }

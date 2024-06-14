@@ -52,7 +52,8 @@ namespace JSSATSAPI.BussinessObjects.Service
             var newDiamondPrice = new DiamondPrice
             {
                 Origin = request.Origin,
-                CaratWeight = request.CaratWeight,
+                CaratWeightFrom = request.CaratWeightFrom,
+                CaratWeightTo = request.CaratWeightTo,
                 Color = request.Color,
                 Clarity = request.Clarity,
                 Cut = request.Cut,

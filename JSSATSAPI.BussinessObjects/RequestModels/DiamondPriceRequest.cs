@@ -12,7 +12,10 @@ namespace JSSATSAPI.BussinessObjects.RequestModels
         public string? Origin { get; set; }
 
         [Range(0.01, double.MaxValue, ErrorMessage = "Carat weight must be greater than zero")]
-        public decimal? CaratWeight { get; set; }
+        public decimal? CaratWeightFrom { get; set; }
+
+        [Range(0.01, double.MaxValue, ErrorMessage = "Carat weight must be greater than zero")]
+        public decimal? CaratWeightTo { get; set; }
 
         [Required(ErrorMessage = "Color is required")]
         [RegularExpression("^(D|E|F|J)$", ErrorMessage = "Color must be one of the following values: D, E, F, J")]

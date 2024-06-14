@@ -24,6 +24,7 @@ namespace JSSATSAPI.DataAccess.Models
         public int? Quantity { get; set; }
         public string? Status { get; set; }
         public decimal? PriceRate { get; set; }
+        public decimal? BuyBackPrice { get; set; }
 
         public virtual Category? Category { get; set; }
         public virtual Counter? Counter { get; set; }

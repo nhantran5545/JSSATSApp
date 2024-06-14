@@ -1,124 +1,132 @@
 ﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hóa Đơn Bán Hàng</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
         }
 
         .container {
             width: 80%;
             margin: auto;
+            padding: 20px;
         }
 
-        .header, .footer {
-            text-align: center;
+        .header {
+            display: flex;
+            align-items: center;
             margin-bottom: 20px;
         }
 
             .header img {
-                width: 100px;
+                max-width: 150px;
+                margin-right: 20px;
             }
 
-        .title {
-            font-size: 24px;
-            font-weight: bold;
+            .header h1 {
+                font-size: 24px;
+                margin: 0;
+            }
+
+        .section {
+            margin-bottom: 20px;
         }
 
-        .info-table, .items-table, .totals-table {
+            .section h2 {
+                font-size: 20px;
+                margin-bottom: 10px;
+                border-bottom: 2px solid #ddd;
+                padding-bottom: 5px;
+            }
+
+        table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
 
-            .info-table td, .items-table th, .items-table td, .totals-table td {
-                border: 1px solid #ddd;
-                padding: 8px;
-            }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
 
-            .info-table td {
-                border: none;
-            }
+        th {
+            background-color: #f2f2f2;
+        }
 
-            .items-table th {
-                background-color: #f2f2f2;
-                font-weight: bold;
-            }
+        .text-right {
+            text-align: right;
+        }
 
-            .totals-table td {
-                text-align: right;
-            }
+        .text-center {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://jsssatsupload.blob.core.windows.net/jssats/JSSATS_logo.png" alt="Logo">
-            <div class="title">HÓA ĐƠN BÁN HÀNG</div>
+            <img src="https://bfrsserverupload.blob.core.windows.net/bfrsimage/JSSATS_logo.png" alt="Logo" />
+            <h1>Hóa Đơn Mua Lại</h1>
         </div>
-
-        <table class="info-table">
-            <tr>
-                <td><strong>Mã Đơn Hàng:</strong> {{OrderSellId}}</td>
-                <td><strong>Khách Hàng:</strong> {{CustomerName}} ({{CustomerId}})</td>
-            </tr>
-            <tr>
-                <td><strong>Người Bán:</strong> {{SellerFirstName}} {{SellerLastName}} (ID: {{SellerId}})</td>
-                <td><strong>Ngày Đặt Hàng:</strong> {{OrderDate}}</td>
-            </tr>
-            <tr>
-                <td><strong>Trạng Thái:</strong> {{Status}}</td>
-            </tr>
-        </table>
-
-        <table class="items-table">
-            <thead>
+        <div class="section customer-info">
+            <h2>Thông Tin Khách Hàng</h2>
+            <table>
                 <tr>
-                    <th>Mã Sản Phẩm</th>
+                    <th>Tên Khách Hàng</th>
+                    <td>{CustomerName}</td>
+                </tr>
+                <tr>
+                    <th>Số Điện Thoại</th>
+                    <td>{CustomerPhone}</td>
+                </tr>
+                <tr>
+                    <th>Ngày</th>
+                    <td>{DateBuyBack}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="section order-details">
+            <h2>Chi Tiết Đơn Hàng</h2>
+            <table>
+                <tr>
+                    <th>STT</th>
                     <th>Tên Sản Phẩm</th>
                     <th>Số Lượng</th>
-                    <th>Giá</th>
-                    <th>Tổng</th>
+                    <th>Giá (VNĐ)</th>
+                    <th>Tổng (VNĐ)</th>
                 </tr>
-            </thead>
-            <tbody>
-                {{#each OrderSellDetails}}
+                {OrderDetails}
+            </table>
+        </div>
+        <div class="section totals">
+            <h2>Tổng Cộng</h2>
+            <table>
                 <tr>
-                    <td>{{ProductId}}</td>
-                    <td>{{ProductName}}</td>
-                    <td>{{Quantity}}</td>
-                    <td>{{Price}} VND</td>
-                    <td>{{TotalPrice}} VND</td>
+                    <th class="text-right">Tổng Tiền:</th>
+                    <td class="text-right">{TotalAmount} VNĐ</td>
                 </tr>
-                {{/each}}
-            </tbody>
-        </table>
-
-        <table class="totals-table">
-            <tr>
-                <td><strong>Tổng Số Tiền:</strong></td>
-                <td>{{TotalAmount}} VND</td>
-            </tr>
-            <tr>
-                <td><strong>Giảm Giá Cá Nhân:</strong></td>
-                <td>{{IndividualPromotionDiscount}} VND</td>
-            </tr>
-            <tr>
-                <td><strong>Giảm Giá Hội Viên:</strong></td>
-                <td>{{MemberShipDiscount}} VND</td>
-            </tr>
-            <tr>
-                <td><strong>Số Tiền Cuối Cùng:</strong></td>
-                <td>{{FinalAmount}} VND</td>
-            </tr>
-        </table>
-
-        <div class="footer">
-            <p><strong>Chữ Ký Người Mua</strong></p>
-            <p><strong>Chữ Ký Người Bán</strong></p>
+                <tr>
+                    <th class="text-right">Số Tiền Thanh Toán:</th>
+                    <td class="text-right">{FinalAmount} VNĐ</td>
+                </tr>
+            </table>
+        </div>
+        <div class="section payments">
+            <h2>Thanh Toán</h2>
+            <table>
+                <tr>
+                    <th>Hình Thức Thanh Toán</th>
+                    <th>Số Tiền (VNĐ)</th>
+                    <th>Ngày</th>
+                </tr>
+                {Payments}
+            </table>
         </div>
     </div>
 </body>

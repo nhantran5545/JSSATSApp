@@ -72,6 +72,48 @@ namespace JSSATSAPI.DataAccess.Repository
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<OrderSell>> GetAllOrderSellApprovalAsync()
+        {
+            return await _context.OrderSells
+                .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
+                .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
+                .Include(b => b.OrderSellDetails)
+                .ThenInclude(b => b.Product)
+                .Where(br => br.Status == "Approval")
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<OrderSell>> GetAllOrderSellApprovedAsync()
+        {
+            return await _context.OrderSells
+                .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
+                .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
+                .Include(b => b.OrderSellDetails)
+                .ThenInclude(b => b.Product)
+                .Where(br => br.Status == "Approved")
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<OrderSell>> GetAllOrderSellDeliveredAsync()
+        {
+            return await _context.OrderSells
+                .Include(b => b.Customer)
+                .ThenInclude(b => b.Tier)
+                .Include(b => b.Seller)
+                .Include(b => b.Payments)
+                .ThenInclude(b => b.PaymentType)
+                .Include(b => b.OrderSellDetails)
+                .ThenInclude(b => b.Product)
+                .Where(br =>  br.Status == "Delivered")
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<OrderSell>> GetAllOrderSellProcessingBySellerAsync(int sellerId)
         {
             return await _context.OrderSells

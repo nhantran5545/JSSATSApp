@@ -22,6 +22,9 @@ namespace JSSATSAPI.BussinessObjects.IService
         Task<IEnumerable<OrderSellResponse>> GetOrderSellBySellerId(int sellerId);
         Task<IEnumerable<OrderSellResponse>> GetOrderSellDeliveredBySellerId(int sellerId);
         Task<IEnumerable<OrderSellResponse>> GetOrderSellProcessingBySellerId(int sellerId);
+        Task<IEnumerable<OrderSellResponse>> GetOrderSellDelivered();
+        Task<IEnumerable<OrderSellResponse>> GetOrderSellApproval();
+        Task<IEnumerable<OrderSellResponse>> GetOrderSellApproved();
     }
 
 }

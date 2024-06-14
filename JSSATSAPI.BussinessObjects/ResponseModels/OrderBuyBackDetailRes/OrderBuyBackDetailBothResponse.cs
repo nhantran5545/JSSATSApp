@@ -10,6 +10,7 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.OrderBuyBackDetailRes
     {
         public string ProductId { get; set; }
         public string ProductName { get; set; }
+        public string? BuyBackProductName { get; set; }
         public int? Quantity { get; set; }
         public int? MaterialId { get; set; }
         public decimal? Weight { get; set; }

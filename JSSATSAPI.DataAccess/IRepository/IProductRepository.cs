@@ -10,6 +10,6 @@ namespace JSSATSAPI.DataAccess.IRepository
     public interface IProductRepository : IGenericRepository<Product>
     {
         Task<Product> GetProductByIdAsync(string productId);
-        Task UpdateProductPrice(string productId, decimal productPrice);
+        Task UpdateProductPrice(string productId, decimal productPrice, decimal buybackPrice);
     }
 }

@@ -12,7 +12,7 @@ namespace JSSATSAPI.DataAccess.Models
         public int? Quantity { get; set; }
         public int? MaterialId { get; set; }
         public decimal? Weight { get; set; }
-        public decimal? BuyBackProductName { get; set; }
+        public string? BuyBackProductName { get; set; }
         public string? Origin { get; set; }
         public decimal? CaratWeight { get; set; }
         public string? Color { get; set; }

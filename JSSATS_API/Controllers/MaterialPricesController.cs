@@ -1,4 +1,5 @@
 ﻿using JSSATSAPI.BussinessObjects.IService;
+using JSSATSAPI.BussinessObjects.RequestModels.MaterialReqModels;
 using JSSATSAPI.BussinessObjects.ResponseModels.DiamondPriceResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.MaterialPriceResponse;
 using JSSATSAPI.BussinessObjects.Service;
@@ -28,6 +29,20 @@ namespace JSSATS_API.Controllers
                 return NotFound("No materials found.");
             }
             return Ok(materials);
+        }
+
+        [HttpPut("{materialPriceId}")]
+        public async Task<IActionResult> UpdateMaterialPrice(int materialPriceId, [FromBody] UpdateMaterialPriceRequest request)
+        {
+            try
+            {
+                await _materialPriceService.UpdateMaterialPriceAsync(materialPriceId, request.BuyPrice, request.SellPrice, request.EffDate);
+                return Ok(new { message = "Material price updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

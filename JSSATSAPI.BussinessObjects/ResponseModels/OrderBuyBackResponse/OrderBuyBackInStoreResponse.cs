@@ -14,10 +14,14 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.OrderBuyBackResponse
         public string CustomerName { get; set; }
         public string? CustomerPhone { get; set; }
         public DateTime DateBuyBack { get; set; }
+        public decimal ProductPriceTotal { get; set; }
+        public decimal BuyBackPriceTotal { get; set; }
+        public decimal DiscountRate { get; set; }
+
         public decimal TotalAmount { get; set; }
         public decimal FinalAmount { get; set; }
         public string Status { get; set; }
-        public List<OrderBuyBackDetailBothResponse> OrderBuyBackDetails { get; set; }
+        public List<OrderBuyBackDetailInStoreResponse> OrderBuyBackDetails { get; set; }
         public List<PaymentResponse> Payments { get; set; } = new();
     }
 }

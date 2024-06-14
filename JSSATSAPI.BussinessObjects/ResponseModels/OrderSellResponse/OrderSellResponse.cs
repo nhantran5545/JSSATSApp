@@ -18,6 +18,7 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.OrderSellResponse
         public string SellerLastName { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal? InvidualPromotionDiscount { get; set; }
+        public string? PromotionReason { get; set; }
         public decimal? MemberShipDiscountPercent { get; set; }
         public decimal? MemberShipDiscount { get; set; }
         public decimal FinalAmount { get; set; }

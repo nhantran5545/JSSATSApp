@@ -12,6 +12,7 @@ namespace JSSATSAPI.DataAccess.Models
 
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = null!;
+        public decimal? DiscountRate { get; set; }
         public int CategoryTypeId { get; set; }
         public string? Status { get; set; }
 

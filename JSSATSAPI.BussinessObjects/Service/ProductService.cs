@@ -29,8 +29,8 @@ namespace JSSATSAPI.BussinessObjects.Service
         private readonly IMapper _mapper;
         private readonly IHubContext<ProductHub> _hubContext;
 
-        public ProductService(IProductRepository productRepository, IDiamondRepository diamondRepository, 
-            IDiamondPriceRepository diamondPriceRepository, IProductDiamondRepository productDiamondRepository, 
+        public ProductService(IProductRepository productRepository, IDiamondRepository diamondRepository,
+            IDiamondPriceRepository diamondPriceRepository, IProductDiamondRepository productDiamondRepository,
             IProductMaterialRepository productMaterialRepository, IMapper mapper, IHubContext<ProductHub> hubContext)
         {
             _productRepository = productRepository;
@@ -55,6 +55,10 @@ namespace JSSATSAPI.BussinessObjects.Service
                 decimal materialCost = product.MaterialCost ?? 0;
 
                 decimal totalMaterialCost = 0;
+                decimal totalBuyPriceMaterialCost = 0;
+
+                var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
+
                 var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
                 foreach (var productMaterial in productMaterials)
                 {
@@ -62,34 +66,49 @@ namespace JSSATSAPI.BussinessObjects.Service
                     if (materialPrice != null)
                     {
                         totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
+                        totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
                     }
                 }
 
                 decimal totalDiamondCost = 0;
+                decimal totalBuyPriceDiamondCost = 0;
                 var productDiamondsList = productDiamonds.Where(pd => pd.ProductId == product.ProductId);
                 foreach (var productDiamond in productDiamondsList)
                 {
                     var diamond = productDiamond.DiamondCodeNavigation;
-                    var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeight, diamond.Color, diamond.Clarity, diamond.Cut);
+                    var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom, diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
 
                     if (latestPrice != null)
                     {
                         totalDiamondCost += latestPrice.SellPrice ?? 0;
+                        totalBuyPriceDiamondCost += latestPrice.BuyPrice ?? 0;
                     }
                 }
 
-                decimal costPrice = totalMaterialCost + productionCost + diamondCost + totalDiamondCost;
+
+
+                //SellPrice
+                decimal costPrice = totalMaterialCost + totalDiamondCost + productionCost + diamondCost + materialCost;
+                //BuyPrice
+                decimal costBuyPrice = totalBuyPriceMaterialCost + totalBuyPriceDiamondCost + productionCost + diamondCost + materialCost ;
+
                 decimal priceRatePercent = product.PriceRate ?? 0;
                 decimal priceRateDecimal = priceRatePercent / 100;
+                //ProductSellPrice
                 decimal productPrice = costPrice * (1 + priceRateDecimal);
+                //ProductBuyPrice
+                decimal productBuyPrice = costBuyPrice * (1 + priceRateDecimal);
 
                 // Cập nhật giá sản phẩm vào database
                 product.ProductPrice = productPrice;
-                _productRepository.UpdateProductPrice(product.ProductId, productPrice);
+                product.BuyBackPrice = productBuyPrice;
+                _productRepository.UpdateProductPrice(product.ProductId, productPrice, productBuyPrice);
                 _productRepository.SaveChanges();
 
                 var productResponseModel = _mapper.Map<ProductResponse>(product);
                 productResponseModel.ProductPrice = productPrice;
+                productResponseModel.BuyBackPrice = productBuyPrice;
+                productResponseModel.DiscountRate = categoryDiscountRate;
 
                 productResponseModels.Add(productResponseModel);
             }
@@ -112,7 +131,10 @@ namespace JSSATSAPI.BussinessObjects.Service
                 decimal diamondCost = product.DiamondCost ?? 0;
                 decimal materialCost = product.MaterialCost ?? 0;
 
+                var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
+
                 decimal totalMaterialCost = 0;
+                decimal totalBuyPriceMaterialCost = 0;
                 var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
                 foreach (var productMaterial in productMaterials)
                 {
@@ -120,34 +142,47 @@ namespace JSSATSAPI.BussinessObjects.Service
                     if (materialPrice != null)
                     {
                         totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
+                        totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
                     }
                 }
 
                 decimal totalDiamondCost = 0;
+                decimal totalBuyPriceDiamondCost = 0;
                 var productDiamondsList = productDiamonds.Where(pd => pd.ProductId == product.ProductId);
                 foreach (var productDiamond in productDiamondsList)
                 {
                     var diamond = productDiamond.DiamondCodeNavigation;
-                    var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeight, diamond.Color, diamond.Clarity, diamond.Cut);
+                    var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom,diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
 
                     if (latestPrice != null)
                     {
                         totalDiamondCost += latestPrice.SellPrice ?? 0;
+                        totalBuyPriceDiamondCost += latestPrice.BuyPrice ?? 0;
                     }
                 }
 
-                decimal costPrice = totalMaterialCost + productionCost + diamondCost + totalDiamondCost;
+                //SellPrice
+                decimal costPrice = totalMaterialCost + totalDiamondCost + productionCost + diamondCost + materialCost;
+                //BuyPrice
+                decimal costBuyPrice = totalBuyPriceMaterialCost + totalBuyPriceDiamondCost + productionCost + diamondCost + materialCost;
+
                 decimal priceRatePercent = product.PriceRate ?? 0;
                 decimal priceRateDecimal = priceRatePercent / 100;
+                //ProductSellPrice
                 decimal productPrice = costPrice * (1 + priceRateDecimal);
+                //ProductBuyPrice
+                decimal productBuyPrice = costBuyPrice * (1 + priceRateDecimal);
 
                 // Cập nhật giá sản phẩm vào database
                 product.ProductPrice = productPrice;
-                _productRepository.UpdateProductPrice(product.ProductId, productPrice);
+                product.BuyBackPrice = productBuyPrice;
+                _productRepository.UpdateProductPrice(product.ProductId, productPrice, productBuyPrice);
                 _productRepository.SaveChanges();
 
                 var productResponseModel = _mapper.Map<ProductResponse>(product);
                 productResponseModel.ProductPrice = productPrice;
+                productResponseModel.BuyBackPrice = productBuyPrice;
+                productResponseModel.DiscountRate = categoryDiscountRate;
 
                 productResponseModels.Add(productResponseModel);
             }
@@ -186,7 +221,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             };
 
             await _productRepository.AddAsync(product);
-             _productRepository.SaveChanges();
+            _productRepository.SaveChanges();
 
             if (request.Diamonds != null && request.Diamonds.Any())
             {
@@ -199,7 +234,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                     };
                     await _productDiamondRepository.AddProductDiamondAsync(productDiamond);
                 }
-                 _productDiamondRepository.SaveChanges();
+                _productDiamondRepository.SaveChanges();
             }
 
             if (request.Materials != null && request.Materials.Any())
@@ -214,7 +249,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                     };
                     await _productMaterialRepository.AddProductMaterialAsync(productMaterial);
                 }
-                 _productMaterialRepository.SaveChanges();
+                _productMaterialRepository.SaveChanges();
             }
 
             return new ProductResponse
@@ -281,7 +316,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                     var diamond = productDiamond.DiamondCodeNavigation;
                     if (diamond != null)
                     {
-                        var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeight, diamond.Color, diamond.Clarity, diamond.Cut);
+                        var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom, diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
                         if (latestPrice != null)
                         {
                             totalDiamondCost += latestPrice.BuyPrice ?? 0;
@@ -295,7 +330,12 @@ namespace JSSATSAPI.BussinessObjects.Service
             decimal priceRateDecimal = priceRatePercent / 100;
             decimal buyBackPrice = productBuyPrice * (1 + priceRateDecimal);
 
+            product.BuyBackPrice = buyBackPrice;
+             _productRepository.Update(product);
+             _productRepository.SaveChanges();
+
             return buyBackPrice;
         }
+
     }
 }

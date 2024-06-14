@@ -7,10 +7,10 @@ namespace JSSATSAPI.DataAccess.Models
     {
         public int PaymentId { get; set; }
         public int? OrderSellId { get; set; }
-        public int? PaymentTypeId { get; set; }
-        public decimal? Amount { get; set; }
-        public DateTime? CreateDate { get; set; }
         public int? OrderBuyBackId { get; set; }
+        public int? PaymentTypeId { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime? CreateDate { get; set; }
 
         public virtual OrderBuyBack? OrderBuyBack { get; set; }
         public virtual OrderSell? OrderSell { get; set; }

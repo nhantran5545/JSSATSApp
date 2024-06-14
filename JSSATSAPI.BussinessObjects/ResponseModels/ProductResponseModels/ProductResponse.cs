@@ -20,6 +20,8 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.ProductResponseModels
         public decimal? DiamondCost { get; set; }
         public decimal? ProductionCost { get; set; }
         public decimal? ProductPrice { get; set; }
+        public decimal? BuyBackPrice { get; set; }
+        public decimal? DiscountRate { get; set; }
         public int? Quantity { get; set; }
         public string? Status { get; set; }
     }

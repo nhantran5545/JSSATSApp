@@ -16,17 +16,32 @@ namespace JSSATSAPI.DataAccess.Repository
         }
 
 
-        public async Task<DiamondPrice> GetLatestDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut)
+        public async Task<DiamondPrice> GetLatestDiamondPriceAsync(string origin, decimal caratWeightFrom, decimal caratWeightTo, string color, string clarity, string cut)
         {
             return await _context.Set<DiamondPrice>()
                                  .Where(dp => dp.Origin == origin &&
-                                              dp.CaratWeight == caratWeight &&
+                                              dp.CaratWeightFrom == caratWeightFrom &&
+                                              dp.CaratWeightTo == caratWeightTo &&
                                               dp.Color == color &&
                                               dp.Clarity == clarity &&
                                               dp.Cut == cut)
                                  .OrderByDescending(dp => dp.EffDate)
                                  .FirstOrDefaultAsync();
         }
+
+        public async Task<DiamondPrice> GetBuyPriceDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut)
+        {
+            return await _context.Set<DiamondPrice>()
+                                 .Where(dp => dp.Origin == origin &&
+                                              dp.CaratWeightFrom <= caratWeight &&
+                                              dp.CaratWeightTo >= caratWeight &&
+                                              dp.Color == color &&
+                                              dp.Clarity == clarity &&
+                                              dp.Cut == cut)
+                                 .OrderByDescending(dp => dp.EffDate)
+                                 .FirstOrDefaultAsync();
+        }
+
 
     }
 }
