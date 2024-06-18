@@ -11,6 +11,7 @@ namespace JSSATSAPI.BussinessObjects.IService
     {
         Task<byte[]> ExportSellInvoiceAsync(int orderSellId);
         Task<byte[]> GenerateOrderBuyBackInvoicePdfAsync(int orderBuyBackId);
+        Task<string> GetBuyBackInvoiceHtmlAsync(int orderBuyBackId);
         Task<string> GetSellInvoiceHtmlAsync(int orderSellId);
     }
 }

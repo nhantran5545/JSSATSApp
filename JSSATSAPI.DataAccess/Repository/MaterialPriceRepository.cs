@@ -19,8 +19,11 @@ namespace JSSATSAPI.DataAccess.Repository
         {
             return await _context.MaterialPrices
                 .Include(b => b.Material)
+                .ThenInclude(b => b.MaterialType)
                 .ToListAsync();
         }
+
+
 
     }
 }

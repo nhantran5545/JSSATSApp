@@ -112,6 +112,52 @@ namespace JSSATSAPI.BussinessObjects.Service
             _accountRepository.SaveChanges();
         }
 
+
+        public async Task<bool> UpdateAccount(int AccountId, AccountUpdateRequest accountUpdate)
+        {
+            var account = await _accountRepository.GetByIdAsync(AccountId);
+            if (account == null)
+            {
+                return false;
+            }
+
+            // Update only if the new values are not null or empty
+            if (!string.IsNullOrEmpty(accountUpdate.FirstName))
+            {
+                account.FirstName = accountUpdate.FirstName;
+            }
+            if (!string.IsNullOrEmpty(accountUpdate.LastName))
+            {
+                account.LastName = accountUpdate.LastName;
+            }
+            if (!string.IsNullOrEmpty(accountUpdate.Phone))
+            {
+                account.Phone = accountUpdate.Phone;
+            }
+            if (!string.IsNullOrEmpty(accountUpdate.Email))
+            {
+                account.Email = accountUpdate.Email;
+            }
+            if (!string.IsNullOrEmpty(accountUpdate.ImageUrl))
+            {
+                account.ImageUrl = accountUpdate.ImageUrl;
+            }
+            if (!string.IsNullOrEmpty(accountUpdate.Address))
+            {
+                account.Address = accountUpdate.Address;
+            }
+
+            _accountRepository.Update(account);
+            var result = _accountRepository.SaveChanges();
+            if (result < 1)
+            {
+                return false;
+            }
+            return true;
+        }
+
+
+
         public async Task<IEnumerable<AccountDetailResponse>> GetManagerAccountsAsync()
         {
             var managerAccounts = await _accountRepository.GetAccountsByRoleAsync("Manager");
@@ -129,7 +175,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             var account = _accountRepository.GetAccountById(accountId);
             return account != null && account.Role == "Manager";
         }
-        public bool IsStaff(int accountId)
+        public bool IsSeller(int accountId)
         {
             var account = _accountRepository.GetAccountById(accountId);
             return account != null && account.Role == "Staff";

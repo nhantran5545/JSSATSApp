@@ -9,6 +9,7 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.MaterialPriceResponse
 {
     public class MaterialPriceResponse
     {
+        public int MaterialPriceId { get; set; }
         public decimal BuyPrice { get; set; }
         public decimal SellPrice { get; set; }
         public DateTime EffDate { get; set; }

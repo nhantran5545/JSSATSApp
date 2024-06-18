@@ -19,24 +19,47 @@ namespace JSSATSAPI.BussinessObjects.Service
     public class MaterialPriceService : IMaterialPriceService
     {
         private readonly IMaterialRepository _materialRepository;
+        private readonly IMaterialTypeRepository _materialTypeRepository;
         private readonly IMaterialPriceRepository _materialPriceRepository;
         private readonly IMapper _mapper;
 
-        public MaterialPriceService(IMaterialRepository materialRepository,IMaterialPriceRepository materialPriceRepository, IMapper mapper)
+        public MaterialPriceService(IMaterialRepository materialRepository,IMaterialPriceRepository materialPriceRepository, IMapper mapper, IMaterialTypeRepository materialTypeRepository)
         {
             _materialRepository = materialRepository ?? throw new ArgumentNullException(nameof(materialRepository));
             _materialPriceRepository = materialPriceRepository ?? throw new ArgumentNullException(nameof(materialPriceRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _materialTypeRepository = materialTypeRepository;
         }
 
-        public async Task<IEnumerable<Material1Response>> GetAllMaterialsAsync()
+        public async Task<List<MaterialPriceWithTypeResponse>> GetMaterialTypeWithDetailsAsync()
         {
-            var materials = await _materialRepository.GetAllMaterialsAsync();
-            if (materials == null)
+            var materialTypes = await _materialTypeRepository.GetAllAsync();
+            var materialTypeResponses = new List<MaterialPriceWithTypeResponse>();
+
+            foreach (var materialType in materialTypes)
             {
-                throw new Exception("No materials found");
+                var materialTypeResponse = new MaterialPriceWithTypeResponse
+                {
+                    MaterialTypeId = materialType.MaterialTypeId,
+                    MaterialTypeName = materialType.MaterialTypeName,
+                    Materials = materialType.Materials.Select(m => new Material1Response
+                    {
+                        MaterialId = m.MaterialId,
+                        MaterialName = m.MaterialName,
+                        MaterialPrices = m.MaterialPrices.Select(mp => new MaterialPriceResponse
+                        {
+                            MaterialPriceId = mp.MaterialPriceId,
+                            BuyPrice = mp.BuyPrice,
+                            SellPrice = mp.SellPrice,
+                            EffDate = mp.EffDate
+                        }).ToList()
+                    }).ToList()
+                };
+
+                materialTypeResponses.Add(materialTypeResponse);
             }
-            return _mapper.Map<IEnumerable<Material1Response>>(materials);
+
+            return materialTypeResponses;
         }
 
         public async Task UpdateMaterialPriceAsync(int materialPriceId, decimal buyPrice, decimal sellPrice, DateTime effDate)

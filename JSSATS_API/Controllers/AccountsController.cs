@@ -20,15 +20,23 @@ namespace JSSATS_API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(AccountLoginRequest loginRequest)
         {
-            var (token, account, errorMessage) = await _accountService.LoginAsync(loginRequest);
-
-            if (!string.IsNullOrEmpty(errorMessage))
+            try
             {
-                return Unauthorized(errorMessage);
-            }
+                var (token, account, errorMessage) = await _accountService.LoginAsync(loginRequest);
 
-            return Ok(new { token, account });
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    return Unauthorized(errorMessage);
+                }
+
+                return Ok(new { token, account });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
 
         [HttpPost("signup")]
         [Authorize(Roles = "Manager")]
@@ -52,6 +60,23 @@ namespace JSSATS_API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPut("{accountId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateAccount(int accountId, [FromBody] AccountUpdateRequest accountUpdate)
+        {
+            var account = await _accountService.GetAccountByIdAsync(accountId);
+            if (account == null)
+            {
+                return NotFound("Account not found");
+            }
+
+            if (await _accountService.UpdateAccount(accountId, accountUpdate))
+            {
+                return Ok(accountUpdate);
+            }
+            return BadRequest("Something wrong with the server Please try again");
         }
     }
 }

@@ -21,17 +21,26 @@ namespace JSSATS_API.Controllers
         }
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetAllMaterialPrices()
+        public async Task<IActionResult> GetAllMaterialTypePrices()
         {
-            var materials = await _materialPriceService.GetAllMaterialsAsync();
-            if (materials == null || !materials.Any())
+            try
             {
-                return NotFound("No materials found.");
+                var materials = await _materialPriceService.GetMaterialTypeWithDetailsAsync();
+                if (materials == null)
+                {
+                    return NotFound("No materials found.");
+                }
+                return Ok(materials);
             }
-            return Ok(materials);
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
         }
 
         [HttpPut("{materialPriceId}")]
+        [Authorize]
         public async Task<IActionResult> UpdateMaterialPrice(int materialPriceId, [FromBody] UpdateMaterialPriceRequest request)
         {
             try

@@ -126,11 +126,8 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                          .ReverseMap();
             CreateMap<DiamondPrice, DiamondPriceResponse>()
                          .ReverseMap();
-            CreateMap<Material, Material1Response>()
-                            .ForMember(dest => dest.MaterialPrices, opt => opt.MapFrom(src => src.MaterialPrices))
-                            .ReverseMap();
-            CreateMap<MaterialPrice, MaterialPriceResponse>()
-                .ReverseMap();
+
+
             CreateMap<OrderBuyBack, OrderBuyBackResponse>()
                          .ForMember(dest => dest.CustomerName,
                                     opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : string.Empty))
@@ -139,12 +136,20 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                          .ForMember(dest => dest.OrderBuyBackDetails,
                                     opt => opt.MapFrom(src => src.OrderBuyBackDetails))
                           .ReverseMap();
+
             CreateMap<OrderBuyBackDetail, OrderBuyBackDetailResponse>()
                           .ReverseMap();
             CreateMap<MaterialType, MaterialTypeResponse>()
                           .ReverseMap();
             CreateMap<Material, MaterialResponse>()
                           .ReverseMap();
+            CreateMap<Material, Material1Response>()
+                .ForMember(dest => dest.MaterialId, opt => opt.MapFrom(src => src.MaterialId))
+                .ForMember(dest => dest.MaterialName, opt => opt.MapFrom(src => src.MaterialName))
+                .ForMember(dest => dest.MaterialPrices, opt => opt.MapFrom(src => src.MaterialPrices))
+                .ReverseMap();
+            CreateMap<MaterialPrice, MaterialPriceResponse>()
+                .ReverseMap();
             CreateMap<Counter, CounterResponse>()
                         .ForMember(dest => dest.FirstName,
                                     opt => opt.MapFrom(src => src.Account != null ? src.Account.FirstName : string.Empty))

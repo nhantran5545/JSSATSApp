@@ -10,7 +10,8 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.DiamondPriceResponse
     {
         public int DiamondPriceId { get; set; }
         public string? Origin { get; set; }
-        public decimal? CaratWeight { get; set; }
+        public decimal? CaratWeightFrom { get; set; }
+        public decimal? CaratWeightTo { get; set; }
         public string? Color { get; set; }
         public string? Clarity { get; set; }
         public string? Cut { get; set; }

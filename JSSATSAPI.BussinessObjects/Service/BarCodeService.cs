@@ -16,8 +16,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                 Format = BarcodeFormat.CODE_128,
                 Options = new EncodingOptions
                 {
-                    Height = 150,
-                    Width = 300,
+                    Height = 80,
+                    Width = 250,
                     Margin = 10
                 }
             };

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JSSATSAPI.BussinessObjects.RequestModels
+namespace JSSATSAPI.BussinessObjects.RequestModels.DiamondRequest
 {
     public class DiamondPriceRequest
     {

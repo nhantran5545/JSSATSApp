@@ -11,7 +11,7 @@ namespace JSSATSAPI.BussinessObjects.IService
 {
     public interface IMaterialPriceService
     {
-        Task<IEnumerable<Material1Response>> GetAllMaterialsAsync();
+        Task<List<MaterialPriceWithTypeResponse>> GetMaterialTypeWithDetailsAsync();
         Task UpdateMaterialPriceAsync(int materialPriceId, decimal buyPrice, decimal sellPrice, DateTime effDate);
     }
 }

@@ -17,10 +17,11 @@ namespace JSSATSAPI.BussinessObjects.IService
         int GetAccountIdFromToken();
         Task RegisterAccountAsync(AccountSignUpRequest accountSignUp);
         Task<IEnumerable<Account>> GetAllAccountsAsync();
+        Task<bool> UpdateAccount(int AccountId, AccountUpdateRequest accountUpdate);
         Task<bool> CheckUsernameExist(string username);
         Task<IEnumerable<AccountDetailResponse>> GetManagerAccountsAsync();
         Task<IEnumerable<AccountDetailResponse>> GetStaffAccountsAsync();
         bool IsManager(int accountId);
-        bool IsStaff(int accountId);
+        bool IsSeller(int accountId);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using JSSATSAPI.BussinessObjects.IService;
-using JSSATSAPI.BussinessObjects.RequestModels;
 using JSSATSAPI.BussinessObjects.RequestModels.CustomerReqModels;
+using JSSATSAPI.BussinessObjects.RequestModels.DiamondRequest;
 using JSSATSAPI.BussinessObjects.ResponseModels.DiamondPriceResponse;
 using JSSATSAPI.BussinessObjects.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -51,6 +51,26 @@ namespace JSSATS_API.Controllers
             try
             {
                 var response = await _diamondPriceService.CreateDiamondPriceAsync(request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Message: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{diamondPriceId}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> UpdateDiamondPrice(int diamondPriceId, [FromBody] UpdateDiamondPriceRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var response = await _diamondPriceService.UpdateDiamondPriceAsync(diamondPriceId, request);
                 return Ok(response);
             }
             catch (Exception ex)

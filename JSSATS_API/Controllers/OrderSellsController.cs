@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using JSSATSAPI.BussinessObjects.IService;
+using JSSATSAPI.BussinessObjects.RequestModels;
 using JSSATSAPI.BussinessObjects.RequestModels.OrderSellReq;
 using JSSATSAPI.BussinessObjects.ResponseModels.OrderSellResponse;
 using JSSATSAPI.BussinessObjects.Service;
@@ -196,14 +197,14 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpPut("update-discount/{orderSellId}")]
-        [Authorize]
-        public async Task<IActionResult> UpdateIndividualPromotionDiscountAsync(int orderSellId, [FromBody] decimal? newDiscount)
+        [Authorize(Roles ="Manager")]
+        public async Task<IActionResult> UpdateIndividualPromotionDiscountAsync(int orderSellId, [FromBody] DiscountPayload request)
         {
             try
             {
-                if (newDiscount.HasValue)
+                if (request.IndividualPromotionDiscount.HasValue)
                 {
-                    await _orderSellService.UpdateIndividualPromotionDiscountAsync(orderSellId, newDiscount);
+                    await _orderSellService.UpdateIndividualPromotionDiscountAsync(orderSellId, request.IndividualPromotionDiscount);
                 }
                 else
                 {
@@ -217,6 +218,7 @@ namespace JSSATS_API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
 
         [HttpGet("GetOrdersSellByCustomer/{customerId}")]
         [Authorize]
@@ -292,7 +294,7 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpGet("export/{orderSellId}")]
-        [Authorize(Roles = "Cashier")]
+        [Authorize(Roles = "Cashier, Manager")]
         public async Task<IActionResult> ExportSellInvoice(int orderSellId)
         {
             try
@@ -308,7 +310,7 @@ namespace JSSATS_API.Controllers
 
 
         [HttpGet("view/{orderSellId}")]
-        [Authorize(Roles = "Cashier")]
+        [Authorize(Roles = "Cashier, Manager")]
         public async Task<IActionResult> ViewSellInvoice(int orderSellId)
         {
             try

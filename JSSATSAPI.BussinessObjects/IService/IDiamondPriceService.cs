@@ -1,4 +1,4 @@
-﻿using JSSATSAPI.BussinessObjects.RequestModels;
+﻿using JSSATSAPI.BussinessObjects.RequestModels.DiamondRequest;
 using JSSATSAPI.BussinessObjects.ResponseModels.DiamondPriceResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.DiamondResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.PaymentTypeResponse;
@@ -14,5 +14,6 @@ namespace JSSATSAPI.BussinessObjects.IService
     {
         Task<DiamondPriceResponse> CreateDiamondPriceAsync(DiamondPriceRequest request);
         Task<IEnumerable<DiamondPriceResponse>> GetAllDiamondPrsiceAsync();
+        Task<DiamondPriceResponse> UpdateDiamondPriceAsync(int id, UpdateDiamondPriceRequest request);
     }
 }

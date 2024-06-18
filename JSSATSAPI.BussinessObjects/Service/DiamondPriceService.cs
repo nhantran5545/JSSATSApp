@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using JSSATSAPI.BussinessObjects.IService;
 using JSSATSAPI.BussinessObjects.Mapper;
-using JSSATSAPI.BussinessObjects.RequestModels;
 using JSSATSAPI.BussinessObjects.RequestModels.CustomerReqModels;
+using JSSATSAPI.BussinessObjects.RequestModels.DiamondRequest;
 using JSSATSAPI.BussinessObjects.ResponseModels.CustomerResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.DiamondPriceResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.DiamondResponse;
@@ -67,6 +67,35 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             var dpResponse = _mapper.Map<DiamondPriceResponse>(newDiamondPrice);
             return dpResponse;
+        }
+
+
+        public async Task<DiamondPriceResponse> UpdateDiamondPriceAsync(int id, UpdateDiamondPriceRequest request)
+        {
+            var diamondPrice = await _diamondPriceRepository.GetByIdAsync(id);
+            if (diamondPrice == null)
+            {
+                throw new Exception("Diamond price not found");
+            }
+
+            var validationResults = new List<ValidationResult>();
+            var validationContext = new ValidationContext(request, null, null);
+            bool isValid = Validator.TryValidateObject(request, validationContext, validationResults, true);
+
+            if (!isValid)
+            {
+                var errors = string.Join("; ", validationResults.Select(r => r.ErrorMessage));
+                throw new ValidationException($"Request is invalid: {errors}");
+            }
+
+            diamondPrice.SellPrice = request.SellPrice;
+            diamondPrice.BuyPrice = request.BuyPrice;
+            diamondPrice.EffDate = DateTime.Now;
+
+            _diamondPriceRepository.Update(diamondPrice);
+             _diamondPriceRepository.SaveChanges();
+
+            return _mapper.Map<DiamondPriceResponse>(diamondPrice);
         }
 
     }

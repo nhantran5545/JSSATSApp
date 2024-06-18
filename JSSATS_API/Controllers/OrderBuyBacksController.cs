@@ -200,7 +200,8 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpGet]
-        [Route("invoice/pdf/{orderBuyBackId}")]
+        [Route("export/{orderBuyBackId}")]
+        [Authorize(Roles ="Cashier, Manager")]
         public async Task<IActionResult> GetOrderBuyBackInvoicePdf(int orderBuyBackId)
         {
             try
@@ -211,6 +212,21 @@ namespace JSSATS_API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("view/{orderBuyBackId}")]
+        [Authorize(Roles = "Cashier, Manager")]
+        public async Task<IActionResult> ViewBuyBackInvoice(int orderBuyBackId)
+        {
+            try
+            {
+                var htmlContent = await _invoiceService.GetBuyBackInvoiceHtmlAsync(orderBuyBackId);
+                return Content(htmlContent, "text/html");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }
