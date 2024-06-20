@@ -13,8 +13,9 @@ namespace JSSATSAPI.BussinessObjects.IService
         Task<IEnumerable<ProductResponse>> GetAllProductMaterialsAndDiamondsAvaiableAsync();
         Task<IEnumerable<ProductResponse>> GetAllProductMaterialsAndDiamondsAsync();
         Task<ProductResponse> CreateProductAsync(AddProductRequest request);
-        Task<ProductResponse> GetProductById(string productId);
+        Task<ProductResponse> GetProductByIdAsync(string productId);
 
         Task<decimal> CalculateBuyBackPriceForSingleProductAsync(string productId);
+        Task<ProductResponse> UpdateProductAsync(string productId, UpdateProductRequest request);
     }
 }

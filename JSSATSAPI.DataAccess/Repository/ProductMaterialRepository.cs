@@ -31,6 +31,12 @@ namespace JSSATSAPI.DataAccess.Repository
             await _context.Database.ExecuteSqlRawAsync(sql, productIdParam, materialIdParam, weightParam);
         }
 
+        public async Task DeleteProductMaterialsByProductIdAsync(string productId)
+        {
+            var sql = "DELETE FROM ProductMaterial WHERE ProductId = @ProductId";
+            await _context.Database.ExecuteSqlRawAsync(sql, new SqlParameter("@ProductId", productId));
+        }
+
 
         public async Task<IEnumerable<ProductMaterial>> GetAllProductMaterials()
         {
@@ -39,6 +45,7 @@ namespace JSSATSAPI.DataAccess.Repository
                            .ThenInclude(pd => pd.Counter)
                            .Include(pd => pd.Product)
                            .ThenInclude(pd => pd.Category)
+                           .Include(pm => pm.Material)
                            .ToList();
         }
 

@@ -175,28 +175,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 html.Append($"<div><strong>Số tiền thanh toán:</strong> {sellInvoiceDto.FinalAmount.ToString("N0")} VNĐ</div>");
                 html.Append("</div>");
 
-                // Payment Information
-                html.Append("<h2>Thanh Toán</h2>");
-                html.Append("<table class='invoice-table'>");
-                html.Append("<thead>");
-                html.Append("<tr>");
-                html.Append("<th>Hình thức thanh toán</th>");
-                html.Append("<th>Số tiền (VNĐ)</th>");
-                html.Append("<th>Ngày</th>");
-                html.Append("</tr>");
-                html.Append("</thead>");
-                html.Append("<tbody>");
 
-                foreach (var payment in sellInvoiceDto.Payments)
-                {
-                    DateTime createDate = payment.CreateDate;
-                    string paymentDateString = createDate != DateTime.MinValue ? createDate.ToString("dd-MM-yyyy") : "N/A";
-                    html.Append("<tr>");
-                    html.Append($"<td>{payment.PaymentTypeName}</td>");
-                    html.Append($"<td>{payment.Amount.ToString("N0") ?? "0"}</td>");
-                    html.Append($"<td>{paymentDateString}</td>");
-                    html.Append("</tr>");
-                }
 
                 html.Append("</tbody>");
                 html.Append("</table>");
@@ -323,27 +302,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             html.Append($"<div><strong>Số Tiền Thanh Toán:</strong> {orderBuyBack.FinalAmount?.ToString("N0") ?? "0"} VNĐ</div>");
             html.Append("</div>");
 
-            // Payment Information
-            html.Append("<h2>Thanh Toán</h2>");
-            html.Append("<table class='invoice-table'>");
-            html.Append("<thead>");
-            html.Append("<tr>");
-            html.Append("<th>Hình Thức Thanh Toán</th>");
-            html.Append("<th>Số Tiền (VNĐ)</th>");
-            html.Append("<th>Ngày</th>");
-            html.Append("</tr>");
-            html.Append("</thead>");
-            html.Append("<tbody>");
 
-            foreach (var payment in orderBuyBack.Payments)
-            {
-                string paymentDateString = payment.CreateDate.HasValue ? payment.CreateDate.Value.ToString("dd-MM-yyyy") : "N/A";
-                html.Append("<tr>");
-                html.Append($"<td>{payment.PaymentType.PaymentTypeName}</td>");
-                html.Append($"<td>{payment.Amount.ToString("N0") ?? "0"}</td>");
-                html.Append($"<td>{paymentDateString}</td>");
-                html.Append("</tr>");
-            }
 
             html.Append("</tbody>");
             html.Append("</table>");
@@ -610,27 +569,6 @@ namespace JSSATSAPI.BussinessObjects.Service
                 html.Append($"<div><strong>Số Tiền Thanh Toán:</strong> {orderBuyBack.FinalAmount?.ToString("N0") ?? "0"} VNĐ</div>");
                 html.Append("</div>");
 
-                // Payment Information
-                html.Append("<h2>Thanh Toán</h2>");
-                html.Append("<table class='invoice-table'>");
-                html.Append("<thead>");
-                html.Append("<tr>");
-                html.Append("<th>Hình Thức Thanh Toán</th>");
-                html.Append("<th>Số Tiền (VNĐ)</th>");
-                html.Append("<th>Ngày</th>");
-                html.Append("</tr>");
-                html.Append("</thead>");
-                html.Append("<tbody>");
-
-                foreach (var payment in orderBuyBack.Payments)
-                {
-                    string paymentDateString = payment.CreateDate.HasValue ? payment.CreateDate.Value.ToString("dd-MM-yyyy") : "N/A";
-                    html.Append("<tr>");
-                    html.Append($"<td>{payment.PaymentType.PaymentTypeName}</td>");
-                    html.Append($"<td>{payment.Amount.ToString("N0") ?? "0"}</td>");
-                    html.Append($"<td>{paymentDateString}</td>");
-                    html.Append("</tr>");
-                }
 
                 html.Append("</tbody>");
                 html.Append("</table>");

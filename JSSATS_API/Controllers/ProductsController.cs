@@ -81,11 +81,12 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpGet("{productId}")]
-        public async Task<IActionResult> GetOrderSellById(string productId)
+        [Authorize]
+        public async Task<IActionResult> GetProductById(string productId)
         {
             try
             {
-                var products = await _productService.GetProductById(productId);
+                var products = await _productService.GetProductByIdAsync(productId);
                 if (products == null)
                 {
                     return NotFound();
@@ -97,6 +98,22 @@ namespace JSSATS_API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
+        [HttpPut("{productId}")]
+        public async Task<IActionResult> UpdateProductAsync(string productId, [FromBody] UpdateProductRequest request)
+        {
+            try
+            {
+                var updatedProduct = await _productService.UpdateProductAsync(productId, request);
+                return Ok(updatedProduct);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Product not found");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

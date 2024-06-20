@@ -41,6 +41,8 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                                     opt => opt.MapFrom(src => src.Counter != null ? src.Counter.CounterName : string.Empty))
                         .ForMember(dest => dest.CategoryName,
                                     opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : string.Empty))
+                        .ForMember(dest => dest.DiscountRate,
+                                    opt => opt.MapFrom(src => src.Category != null ? src.Category.DiscountRate : (decimal?)null))
                         .ReverseMap();
             CreateMap<OrderSell, OrderSellResponse>()
                         .ForMember(dest => dest.CustomerName,
@@ -188,7 +190,6 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                 .ForMember(dest => dest.Clarity, opt => opt.MapFrom(src => src.Clarity))
                 .ForMember(dest => dest.Cut, opt => opt.MapFrom(src => src.Cut))
                 .ReverseMap();
-
 
             #endregion
         }

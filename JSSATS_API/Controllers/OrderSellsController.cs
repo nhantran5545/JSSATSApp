@@ -62,9 +62,9 @@ namespace JSSATS_API.Controllers
         }
 
 
-        [HttpGet("orderSellBySeller")]
+        [HttpGet("orderSellByAccount")]
         [Authorize]
-        public async Task<IActionResult> GetOrderSellPaidBySellerId()
+        public async Task<IActionResult> GetOrderSellPaidByAccountId()
         {
             try
             {
@@ -82,9 +82,9 @@ namespace JSSATS_API.Controllers
             }
         }
 
-        [HttpGet("orderSellProcessingBySeller")]
+        [HttpGet("orderSellProcessingByAccount")]
         [Authorize]
-        public async Task<IActionResult> GetOrderSellProcessingBySellerId()
+        public async Task<IActionResult> GetOrderSellProcessingByAccountId()
         {
             try
             {
@@ -102,9 +102,9 @@ namespace JSSATS_API.Controllers
             }
         }
 
-        [HttpGet("orderSellDeliveredBySeller")]
+        [HttpGet("orderSellDeliveredByAccount")]
         [Authorize]
-        public async Task<IActionResult> GetOrderSellDeliveredBySellerId()
+        public async Task<IActionResult> GetOrderSellDeliveredByAccountId()
         {
             try
             {

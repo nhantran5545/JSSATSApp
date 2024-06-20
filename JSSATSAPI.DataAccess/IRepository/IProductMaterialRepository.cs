@@ -17,5 +17,6 @@ namespace JSSATSAPI.DataAccess.IRepository
 
         IEnumerable<ProductMaterial> GetProductMaterialsByProductId(string productId);
         Task<MaterialPrice> GetLatestMaterialPriceAsync(int materialId);
+        Task DeleteProductMaterialsByProductIdAsync(string productId);
     }
 }

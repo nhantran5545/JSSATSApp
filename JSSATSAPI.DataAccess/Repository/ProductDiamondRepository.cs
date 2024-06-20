@@ -23,6 +23,15 @@ namespace JSSATSAPI.DataAccess.Repository
             // Execute the raw SQL command
             await _context.Database.ExecuteSqlRawAsync(sql, new SqlParameter("@ProductId", productDiamond.ProductId), new SqlParameter("@DiamondCode", productDiamond.DiamondCode));
         }
+
+        public async Task DeleteProductDiamondsByProductIdAsync(string productId)
+        {
+            var sql = "DELETE FROM ProductDiamond WHERE ProductId = @ProductId";
+            await _context.Database.ExecuteSqlRawAsync(sql, new SqlParameter("@ProductId", productId));
+        }
+
+
+
         public async Task<IEnumerable<ProductDiamond>> GetAllProductDiamondsAsync()
         {
             return await _context.Set<ProductDiamond>()
@@ -41,16 +50,32 @@ namespace JSSATSAPI.DataAccess.Repository
                                  .Include(pd => pd.Product)
                                  .ThenInclude(p => p.Category)
                                  .Include(pd => pd.DiamondCodeNavigation)
-                                  .Where(pd => pd.Product.Status == "Còn hàng" && pd.Product.Quantity > 0)
+                                 .Where(pd => pd.Product.Status == "Còn hàng" && pd.Product.Quantity > 0)
                                  .ToListAsync();
         }
 
         public async Task<IEnumerable<ProductDiamond>> GetProductDiamondsByProductIdAsync(string productId)
         {
             return await _context.ProductDiamonds
+                .Include(pd => pd.Product)
+                .ThenInclude(p => p.Counter)
+                .Include(pd => pd.Product)
+                .ThenInclude(p => p.Category)
                 .Include(pd => pd.DiamondCodeNavigation)
                 .Where(pd => pd.ProductId == productId)
                 .ToListAsync();
+        }
+
+        public IEnumerable<ProductDiamond> GetProductDiamondsByProductId(string productId)
+        {
+            return _context.ProductDiamonds
+                           .Include(pd => pd.Product)
+                           .ThenInclude(p => p.Counter)
+                           .Include(pd => pd.Product)
+                           .ThenInclude(p => p.Category)
+                           .Include(pd => pd.DiamondCodeNavigation)
+                           .Where(pd => pd.ProductId == productId)
+                           .ToList();
         }
     }
 }

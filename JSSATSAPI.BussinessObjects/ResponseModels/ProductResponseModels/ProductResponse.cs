@@ -15,6 +15,8 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.ProductResponseModels
         public int? CounterId { get; set; }
         public string CounterName { get; set; }
         public int? CategoryId { get; set; }
+        public string? MaterialName { get; set; }
+        public string? DiamondName { get; set; }
         public string CategoryName { get; set; }
         public decimal? MaterialCost { get; set; }
         public decimal? DiamondCost { get; set; }

@@ -54,28 +54,34 @@ namespace JSSATSAPI.BussinessObjects.Service
                 decimal diamondCost = product.DiamondCost ?? 0;
                 decimal materialCost = product.MaterialCost ?? 0;
 
+
                 decimal totalMaterialCost = 0;
                 decimal totalBuyPriceMaterialCost = 0;
-
+                string materName = null;
                 var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
 
                 var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
                 foreach (var productMaterial in productMaterials)
                 {
                     var materialPrice = _productMaterialRepository.GetMaterialPriceById(productMaterial.MaterialId.Value);
+                    var materialName = productMaterial.Material.MaterialName;
                     if (materialPrice != null)
                     {
                         totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
                         totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
+                        materName = materialName;
                     }
                 }
 
                 decimal totalDiamondCost = 0;
                 decimal totalBuyPriceDiamondCost = 0;
+                string diaName = null;
                 var productDiamondsList = productDiamonds.Where(pd => pd.ProductId == product.ProductId);
                 foreach (var productDiamond in productDiamondsList)
                 {
                     var diamond = productDiamond.DiamondCodeNavigation;
+                    var diamondName = productDiamond.DiamondCodeNavigation.DiamondName;
+                    diaName = diamondName;
                     var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom, diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
 
                     if (latestPrice != null)
@@ -84,7 +90,6 @@ namespace JSSATSAPI.BussinessObjects.Service
                         totalBuyPriceDiamondCost += latestPrice.BuyPrice ?? 0;
                     }
                 }
-
 
 
                 //SellPrice
@@ -103,12 +108,14 @@ namespace JSSATSAPI.BussinessObjects.Service
                 product.ProductPrice = productPrice;
                 product.BuyBackPrice = productBuyPrice;
                 _productRepository.UpdateProductPrice(product.ProductId, productPrice, productBuyPrice);
-                _productRepository.SaveChanges();
+                _productRepository.SaveChanges();   
 
                 var productResponseModel = _mapper.Map<ProductResponse>(product);
                 productResponseModel.ProductPrice = productPrice;
                 productResponseModel.BuyBackPrice = productBuyPrice;
                 productResponseModel.DiscountRate = categoryDiscountRate;
+                productResponseModel.DiamondName = diaName ?? string.Empty;
+                productResponseModel.MaterialName = materName ?? string.Empty;
 
                 productResponseModels.Add(productResponseModel);
             }
@@ -135,6 +142,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
                 decimal totalMaterialCost = 0;
                 decimal totalBuyPriceMaterialCost = 0;
+                string materName = null;
                 var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
                 foreach (var productMaterial in productMaterials)
                 {
@@ -143,15 +151,20 @@ namespace JSSATSAPI.BussinessObjects.Service
                     {
                         totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
                         totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
+                        var materialName = productMaterial.Material.MaterialName;
+                        materName = materialName;
                     }
                 }
 
                 decimal totalDiamondCost = 0;
                 decimal totalBuyPriceDiamondCost = 0;
+                string diaName = null;
                 var productDiamondsList = productDiamonds.Where(pd => pd.ProductId == product.ProductId);
                 foreach (var productDiamond in productDiamondsList)
                 {
                     var diamond = productDiamond.DiamondCodeNavigation;
+                    var diamondName = diamond.DiamondName;
+                    diaName = diamondName;
                     var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom,diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
 
                     if (latestPrice != null)
@@ -183,7 +196,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                 productResponseModel.ProductPrice = productPrice;
                 productResponseModel.BuyBackPrice = productBuyPrice;
                 productResponseModel.DiscountRate = categoryDiscountRate;
-
+                productResponseModel.DiamondName = diaName ?? string.Empty;
+                productResponseModel.MaterialName = materName ?? string.Empty;
                 productResponseModels.Add(productResponseModel);
             }
 
@@ -272,10 +286,81 @@ namespace JSSATSAPI.BussinessObjects.Service
 
 
 
-        public async Task<ProductResponse> GetProductById(string productId)
+        public async Task<ProductResponse> GetProductByIdAsync(string productId)
         {
-            var productResponse = await _productRepository.GetByIdAsync(productId);
-            return _mapper.Map<ProductResponse>(productResponse);
+            var product = await _productRepository.GetProductByIdAsync(productId);
+
+            if (product == null)
+            {
+                return null;
+            }
+
+            decimal productionCost = product.ProductionCost ?? 0;
+            decimal diamondCost = product.DiamondCost ?? 0;
+            decimal materialCost = product.MaterialCost ?? 0;
+
+            decimal totalMaterialCost = 0;
+            decimal totalBuyPriceMaterialCost = 0;
+            string materName = null;
+            var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
+
+            var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
+            foreach (var productMaterial in productMaterials)
+            {
+                var materialPrice = _productMaterialRepository.GetMaterialPriceById(productMaterial.MaterialId.Value);
+                var materialName = productMaterial.Material.MaterialName;
+                if (materialPrice != null)
+                {
+                    totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
+                    totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
+                    materName = materialName;
+                }
+            }
+
+            decimal totalDiamondCost = 0;
+            decimal totalBuyPriceDiamondCost = 0;
+            string diaName = null;
+            var productDiamondsList = _productDiamondRepository.GetProductDiamondsByProductId(product.ProductId);
+            foreach (var productDiamond in productDiamondsList)
+            {
+                var diamond = productDiamond.DiamondCodeNavigation;
+                var diamondName = productDiamond.DiamondCodeNavigation.DiamondName;
+                diaName = diamondName;
+                var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom, diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
+
+                if (latestPrice != null)
+                {
+                    totalDiamondCost += latestPrice.SellPrice ?? 0;
+                    totalBuyPriceDiamondCost += latestPrice.BuyPrice ?? 0;
+                }
+            }
+
+            //SellPrice
+            decimal costPrice = totalMaterialCost + totalDiamondCost + productionCost + diamondCost + materialCost;
+            //BuyPrice
+            decimal costBuyPrice = totalBuyPriceMaterialCost + totalBuyPriceDiamondCost + productionCost + diamondCost + materialCost;
+
+            decimal priceRatePercent = product.PriceRate ?? 0;
+            decimal priceRateDecimal = priceRatePercent / 100;
+            //ProductSellPrice
+            decimal productPrice = costPrice * (1 + priceRateDecimal);
+            //ProductBuyPrice
+            decimal productBuyPrice = costBuyPrice * (1 + priceRateDecimal);
+
+            // Update product price in the database
+            product.ProductPrice = productPrice;
+            product.BuyBackPrice = productBuyPrice;
+            _productRepository.UpdateProductPrice(product.ProductId, productPrice, productBuyPrice);
+            _productRepository.SaveChanges();
+
+            var productResponseModel = _mapper.Map<ProductResponse>(product);
+            productResponseModel.ProductPrice = productPrice;
+            productResponseModel.BuyBackPrice = productBuyPrice;
+            productResponseModel.DiscountRate = categoryDiscountRate;
+            productResponseModel.DiamondName = diaName ?? string.Empty;
+            productResponseModel.MaterialName = materName ?? string.Empty;
+
+            return productResponseModel;
         }
 
         public async Task<decimal> CalculateBuyBackPriceForSingleProductAsync(string productId)
@@ -336,6 +421,114 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             return buyBackPrice;
         }
+
+        public async Task<ProductResponse> UpdateProductAsync(string productId, UpdateProductRequest request)
+        {
+            var product = await _productRepository.GetByIdAsync(productId);
+            if (product == null)
+            {
+                throw new KeyNotFoundException("Product not found");
+            }
+
+            // Update product details only if provided in the request
+            if (request.ProductName != null)
+            {
+                product.ProductName = request.ProductName;
+            }
+
+            if (request.Size != null)
+            {
+                product.Size = request.Size;
+            }
+
+            if (request.Img != null)
+            {
+                product.Img = request.Img;
+            }
+
+            if (request.CounterId != null)
+            {
+                product.CounterId = request.CounterId;
+            }
+
+            if (request.CategoryId != null)
+            {
+                product.CategoryId = request.CategoryId;
+            }
+
+            if (request.MaterialCost != null)
+            {
+                product.MaterialCost = request.MaterialCost.Value;
+            }
+
+            if (request.DiamondCost != null)
+            {
+                product.DiamondCost = request.DiamondCost.Value;
+            }
+
+            if (request.ProductionCost != null)
+            {
+                product.ProductionCost = request.ProductionCost.Value;
+            }
+
+            if (request.PriceRate != null)
+            {
+                product.PriceRate = request.PriceRate.Value;
+            }
+
+            _productRepository.Update(product);
+             _productRepository.SaveChanges();
+
+            // Update Diamonds if provided
+            if (request.Diamonds != null && request.Diamonds.Any())
+            {
+                await _productDiamondRepository.DeleteProductDiamondsByProductIdAsync(productId);
+                foreach (var diamond in request.Diamonds)
+                {
+                    var productDiamond = new ProductDiamond
+                    {
+                        ProductId = productId,
+                        DiamondCode = diamond.DiamondCode,
+                    };
+                    await _productDiamondRepository.AddProductDiamondAsync(productDiamond);
+                }
+            }
+
+            // Update Materials if provided
+            if (request.Materials != null && request.Materials.Any())
+            {
+                await _productMaterialRepository.DeleteProductMaterialsByProductIdAsync(productId);
+                foreach (var material in request.Materials)
+                {
+                    var productMaterial = new ProductMaterial
+                    {
+                        ProductId = productId,
+                        MaterialId = material.MaterialId,
+                        Weight = material.Weight
+                    };
+                    await _productMaterialRepository.AddProductMaterialAsync(productMaterial);
+                }
+            }
+
+            return new ProductResponse
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                Size = product.Size,
+                Img = product.Img,
+                CounterId = product.CounterId,
+                CategoryId = product.CategoryId,
+                MaterialCost = product.MaterialCost,
+                DiamondCost = product.DiamondCost,
+                ProductionCost = product.ProductionCost,
+                ProductPrice = product.ProductPrice,
+                Quantity = product.Quantity,
+                Status = product.Status,
+            };
+        }
+
+
+
 
     }
 }
