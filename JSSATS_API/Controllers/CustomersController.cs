@@ -23,7 +23,7 @@ namespace JSSATS_API.Controllers
         }
         [HttpPost("create")]
         [Authorize(Roles = "Seller")]
-        public async Task<IActionResult> CreateProduct([FromBody] CustomerRequest request)
+        public async Task<IActionResult> CreateCustomers([FromBody] CustomerRequest request)
         {
             if (request == null)
             {

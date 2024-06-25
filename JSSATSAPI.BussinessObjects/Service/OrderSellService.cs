@@ -23,13 +23,14 @@ namespace JSSATSAPI.BussinessObjects.Service
         private readonly IAccountService _accountService;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly IWarrantyTicketRepository _warrantyTicketRepository;
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
         public OrderSellService(IOrderSellRepository orderSellRepository, 
             IOrderSellDetailRepository orderSellDetailRepository, ICustomerRepository customerRepository, 
             IAccountRepository accountRepository, IMapper mapper, IProductRepository productRepository,
-            IPaymentRepository paymentRepository, IAccountService accountService)
+            IPaymentRepository paymentRepository, IWarrantyTicketRepository warrantyTicketRepository, IAccountService accountService)
         {
             _orderSellRepository = orderSellRepository;
             _orderSellDetailRepository = orderSellDetailRepository;
@@ -37,6 +38,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             _customerRepository = customerRepository;
             _accountRepository = accountRepository;
             _productRepository = productRepository;
+            _warrantyTicketRepository = warrantyTicketRepository;
             _mapper = mapper;
             _accountService = accountService;
         }
@@ -250,19 +252,59 @@ namespace JSSATSAPI.BussinessObjects.Service
             _orderSellRepository.Update(orderSell);
             _orderSellRepository.SaveChanges();
 
+            // Update customer loyaltyPoints
             var customer = await _customerRepository.GetByIdAsync(orderSell.CustomerId);
             if (customer != null)
             {
-                customer.LoyaltyPoints = (customer.LoyaltyPoints ?? 0) + 30; // Tăng 30 points
+                var loyaltyPointsMapping = new Dictionary<Func<decimal, bool>, int>
+        {
+            { amount => amount < 10000000, 30 },
+            { amount => amount >= 10000000 && amount < 40000000, 60 },
+            { amount => amount >= 40000000 && amount < 2000000000, 120 },
+            { amount => amount >= 2000000000, 1000 }
+        };
+
+                int loyaltyPoints = loyaltyPointsMapping.First(mapping => mapping.Key(orderSell.FinalAmount ?? 0)).Value;
+                customer.LoyaltyPoints = (customer.LoyaltyPoints ?? 0) + loyaltyPoints;
+
                 _customerRepository.Update(customer);
                 _customerRepository.SaveChanges();
             }
 
+            // Update seller revenue
+            var seller = await _accountRepository.GetByIdAsync(orderSell.SellerId);
+            if (seller != null)
+            {
+                seller.Revenue = (seller.Revenue ?? 0) + orderSell.FinalAmount; // Update revenue
+                _accountRepository.Update(seller);
+                _accountRepository.SaveChanges();
+            }
+
+            var warrantyStartDate = DateTime.UtcNow;
+            var warrantyEndDate = warrantyStartDate.AddYears(5); // cho 5 nam dai di 
+
+            foreach (var orderSellDetail in orderSell.OrderSellDetails)
+            {
+                var warrantyTicket = new WarrantyTicket
+                {
+                    OrderSellDetailId = orderSellDetail.OrderSellDetailId,
+                    ProductId = orderSellDetail.ProductId,
+                    Status = "Active",
+                    WarrantyStartDate = warrantyStartDate,
+                    WarrantyEndDate = warrantyEndDate
+                };
+
+                await _warrantyTicketRepository.AddAsync(warrantyTicket);
+            }
+            _warrantyTicketRepository.SaveChanges();
+
             var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
             orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
-            orderSellResponse.CustomerLoyaltyPoints = customer?.LoyaltyPoints; 
+            orderSellResponse.CustomerLoyaltyPoints = customer?.LoyaltyPoints;
             return orderSellResponse;
         }
+
+
 
 
         //Get Order By Customer

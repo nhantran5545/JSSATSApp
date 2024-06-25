@@ -38,7 +38,7 @@ namespace JSSATS_API.Controllers
                 return StatusCode(403, "You are not authorized to access this resource.");
             }
         }
-
+/*
         [HttpPost("create")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> CreateDiamondPrice([FromBody] DiamondPriceRequest request)
@@ -57,7 +57,7 @@ namespace JSSATS_API.Controllers
             {
                 return BadRequest($"Message: {ex.Message}");
             }
-        }
+        }*/
 
         [HttpPut("{diamondPriceId}")]
         [Authorize(Roles = "Manager")]

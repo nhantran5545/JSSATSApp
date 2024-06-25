@@ -21,5 +21,11 @@ namespace JSSATSAPI.DataAccess.IRepository
         Task<IEnumerable<OrderSell>> GetAllOrderSellApprovalAsync();
         void SaveChanges();
         Task<IEnumerable<OrderSell>> GetAllOrderSellApprovedAsync();
+
+        //Dashboard
+        Task<decimal> GetTotalRevenueAsync();
+        Task<decimal> GetRevenueByCategoryIdAsync(int categoryId);
+        Task<List<OrderSell>> GetRecentOrdersAsync();
+        Task<List<OrderSell>> GetOrdersByMonthAsync(int year, int month);
     }
 }

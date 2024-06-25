@@ -1,4 +1,5 @@
-﻿using JSSATSAPI.BussinessObjects.ResponseModels.MaterialResponse;
+﻿using JSSATSAPI.BussinessObjects.RequestModels.MaterialReqModels;
+using JSSATSAPI.BussinessObjects.ResponseModels.MaterialResponse;
 using JSSATSAPI.DataAccess.Models;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace JSSATSAPI.BussinessObjects.IService
 {
     public interface IMaterialService
     {
+        Task<MaterialWithPriceResponse> CreateMaterialWithPriceAsync(MaterialRequest request);
         Task<IEnumerable<MaterialTypeResponse>> GetAllMaterialsWithTypesAsync();
 
     }

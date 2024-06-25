@@ -37,7 +37,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             return dp.Select(b => _mapper.Map<DiamondPriceResponse>(b)); 
         }
 
-        public async Task<DiamondPriceResponse> CreateDiamondPriceAsync(DiamondPriceRequest request)
+/*        public async Task<DiamondPriceResponse> CreateDiamondPriceAsync(DiamondPriceRequest request)
         {
             var validationResults = new List<ValidationResult>();
             var validationContext = new ValidationContext(request, null, null);
@@ -67,7 +67,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             var dpResponse = _mapper.Map<DiamondPriceResponse>(newDiamondPrice);
             return dpResponse;
-        }
+        }*/
 
 
         public async Task<DiamondPriceResponse> UpdateDiamondPriceAsync(int id, UpdateDiamondPriceRequest request)

@@ -14,12 +14,13 @@ namespace JSSATSAPI.BussinessObjects.RequestModels.AccountReqModels
         [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; } = null!;
         [Required(ErrorMessage = "Email is required.")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         [Required(ErrorMessage = "Phone is required.")]
-        public string Phone { get; set; }
-        public string ImageUrl { get; set; }
-        public string Address { get; set; }
+        public string? Phone { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? Address { get; set; }
         public int? CounterId { get; set; }
-        public string Role { get; set; }
+        public string? Role { get; set; }
     }
+
 }

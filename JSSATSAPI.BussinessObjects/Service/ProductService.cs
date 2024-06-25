@@ -23,23 +23,30 @@ namespace JSSATSAPI.BussinessObjects.Service
     {
         private readonly IProductRepository _productRepository;
         private readonly IDiamondRepository _diamondRepository;
+        private readonly IMaterialRepository _materialRepository;
         private readonly IDiamondPriceRepository _diamondPriceRepository;
         private readonly IProductDiamondRepository _productDiamondRepository;
         private readonly IProductMaterialRepository _productMaterialRepository;
         private readonly IMapper _mapper;
+        private readonly ICounterRepository _counterRepository;
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IHubContext<ProductHub> _hubContext;
 
         public ProductService(IProductRepository productRepository, IDiamondRepository diamondRepository,
-            IDiamondPriceRepository diamondPriceRepository, IProductDiamondRepository productDiamondRepository,
-            IProductMaterialRepository productMaterialRepository, IMapper mapper, IHubContext<ProductHub> hubContext)
+            IDiamondPriceRepository diamondPriceRepository, IProductDiamondRepository productDiamondRepository, 
+            IProductMaterialRepository productMaterialRepository, IMapper mapper, IHubContext<ProductHub> hubContext, 
+            ICounterRepository counterRepository, ICategoryRepository categoryRepository, IMaterialRepository materialRepository)
         {
             _productRepository = productRepository;
             _diamondRepository = diamondRepository;
             _diamondPriceRepository = diamondPriceRepository;
             _productDiamondRepository = productDiamondRepository;
             _productMaterialRepository = productMaterialRepository;
+            _materialRepository = materialRepository;
             _mapper = mapper;
             _hubContext = hubContext;
+            _counterRepository = counterRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<IEnumerable<ProductResponse>> GetAllProductMaterialsAndDiamondsAsync()
@@ -217,7 +224,21 @@ namespace JSSATSAPI.BussinessObjects.Service
 
         public async Task<ProductResponse> CreateProductAsync(AddProductRequest request)
         {
+            var counterExists = await _counterRepository.GetByIdAsync(request.CounterId);
+            if (counterExists == null)
+            {
+                throw new Exception($"Counter with ID {request.CounterId} not found");
+            }
+
+            var categoryExists = await _categoryRepository.GetByIdAsync(request.CategoryId);
+            if (categoryExists == null)
+            {
+                throw new Exception($"Category with ID {request.CategoryId} not found");
+            }
+
+            // Generate unique Product ID
             var productId = GenerateUniqueProductId();
+    
             var product = new Product
             {
                 ProductId = productId,
@@ -237,10 +258,17 @@ namespace JSSATSAPI.BussinessObjects.Service
             await _productRepository.AddAsync(product);
             _productRepository.SaveChanges();
 
+            // Validate and add Diamonds
             if (request.Diamonds != null && request.Diamonds.Any())
             {
                 foreach (var diamond in request.Diamonds)
                 {
+                    var diamondExists = await _diamondRepository.GetByIdAsync(diamond.DiamondCode);
+                    if (diamondExists == null)
+                    {
+                        throw new Exception($"Diamond with code {diamond.DiamondCode} not found");
+                    }
+
                     var productDiamond = new ProductDiamond
                     {
                         ProductId = productId,
@@ -251,10 +279,17 @@ namespace JSSATSAPI.BussinessObjects.Service
                 _productDiamondRepository.SaveChanges();
             }
 
+            // Validate and add Materials
             if (request.Materials != null && request.Materials.Any())
             {
                 foreach (var material in request.Materials)
                 {
+                    var materialExists = await _materialRepository.GetByIdAsync(material.MaterialId);
+                    if (materialExists == null)
+                    {
+                        throw new Exception($"Material with ID {material.MaterialId} not found");
+                    }
+
                     var productMaterial = new ProductMaterial
                     {
                         ProductId = productId,
@@ -284,8 +319,6 @@ namespace JSSATSAPI.BussinessObjects.Service
         }
 
 
-
-
         public async Task<ProductResponse> GetProductByIdAsync(string productId)
         {
             var product = await _productRepository.GetProductByIdAsync(productId);
@@ -294,13 +327,6 @@ namespace JSSATSAPI.BussinessObjects.Service
             {
                 return null;
             }
-
-            decimal productionCost = product.ProductionCost ?? 0;
-            decimal diamondCost = product.DiamondCost ?? 0;
-            decimal materialCost = product.MaterialCost ?? 0;
-
-            decimal totalMaterialCost = 0;
-            decimal totalBuyPriceMaterialCost = 0;
             string materName = null;
             var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
 
@@ -311,14 +337,10 @@ namespace JSSATSAPI.BussinessObjects.Service
                 var materialName = productMaterial.Material.MaterialName;
                 if (materialPrice != null)
                 {
-                    totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
-                    totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
                     materName = materialName;
                 }
             }
 
-            decimal totalDiamondCost = 0;
-            decimal totalBuyPriceDiamondCost = 0;
             string diaName = null;
             var productDiamondsList = _productDiamondRepository.GetProductDiamondsByProductId(product.ProductId);
             foreach (var productDiamond in productDiamondsList)
@@ -330,32 +352,13 @@ namespace JSSATSAPI.BussinessObjects.Service
 
                 if (latestPrice != null)
                 {
-                    totalDiamondCost += latestPrice.SellPrice ?? 0;
-                    totalBuyPriceDiamondCost += latestPrice.BuyPrice ?? 0;
                 }
             }
 
-            //SellPrice
-            decimal costPrice = totalMaterialCost + totalDiamondCost + productionCost + diamondCost + materialCost;
-            //BuyPrice
-            decimal costBuyPrice = totalBuyPriceMaterialCost + totalBuyPriceDiamondCost + productionCost + diamondCost + materialCost;
 
-            decimal priceRatePercent = product.PriceRate ?? 0;
-            decimal priceRateDecimal = priceRatePercent / 100;
-            //ProductSellPrice
-            decimal productPrice = costPrice * (1 + priceRateDecimal);
-            //ProductBuyPrice
-            decimal productBuyPrice = costBuyPrice * (1 + priceRateDecimal);
 
-            // Update product price in the database
-            product.ProductPrice = productPrice;
-            product.BuyBackPrice = productBuyPrice;
-            _productRepository.UpdateProductPrice(product.ProductId, productPrice, productBuyPrice);
-            _productRepository.SaveChanges();
 
             var productResponseModel = _mapper.Map<ProductResponse>(product);
-            productResponseModel.ProductPrice = productPrice;
-            productResponseModel.BuyBackPrice = productBuyPrice;
             productResponseModel.DiscountRate = categoryDiscountRate;
             productResponseModel.DiamondName = diaName ?? string.Empty;
             productResponseModel.MaterialName = materName ?? string.Empty;
@@ -424,12 +427,24 @@ namespace JSSATSAPI.BussinessObjects.Service
 
         public async Task<ProductResponse> UpdateProductAsync(string productId, UpdateProductRequest request)
         {
+
             var product = await _productRepository.GetByIdAsync(productId);
             if (product == null)
             {
                 throw new KeyNotFoundException("Product not found");
             }
 
+            var counterExists = await _counterRepository.GetByIdAsync(request.CounterId);
+            if (counterExists == null)
+            {
+                throw new Exception($"Counter with ID {request.CounterId} not found");
+            }
+
+            var categoryExists = await _categoryRepository.GetByIdAsync(request.CategoryId);
+            if (categoryExists == null)
+            {
+                throw new Exception($"Category with ID {request.CategoryId} not found");
+            }
             // Update product details only if provided in the request
             if (request.ProductName != null)
             {
@@ -485,6 +500,11 @@ namespace JSSATSAPI.BussinessObjects.Service
                 await _productDiamondRepository.DeleteProductDiamondsByProductIdAsync(productId);
                 foreach (var diamond in request.Diamonds)
                 {
+                    var diamondExists = await _diamondRepository.GetByIdAsync(diamond.DiamondCode);
+                    if (diamondExists == null)
+                    {
+                        throw new Exception($"Diamond with code {diamond.DiamondCode} not found");
+                    }
                     var productDiamond = new ProductDiamond
                     {
                         ProductId = productId,
@@ -500,6 +520,11 @@ namespace JSSATSAPI.BussinessObjects.Service
                 await _productMaterialRepository.DeleteProductMaterialsByProductIdAsync(productId);
                 foreach (var material in request.Materials)
                 {
+                    var materialExists = await _materialRepository.GetByIdAsync(material.MaterialId);
+                    if (materialExists == null)
+                    {
+                        throw new Exception($"Material with ID {material.MaterialId} not found");
+                    }
                     var productMaterial = new ProductMaterial
                     {
                         ProductId = productId,

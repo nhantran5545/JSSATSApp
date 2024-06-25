@@ -78,5 +78,35 @@ namespace JSSATS_API.Controllers
             }
             return BadRequest("Something wrong with the server Please try again");
         }
+
+        [HttpGet("sellers")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetSellerAccounts()
+        {
+            try
+            {
+                var sellers = await _accountService.GetStaffAccountsAsync();
+                return Ok(sellers);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("allAccount")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetAllAccount()
+        {
+            try
+            {
+                var acc = await _accountService.GetAllAccountsAsync();
+                return Ok(acc);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

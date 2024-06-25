@@ -17,12 +17,12 @@ namespace JSSATSAPI.DataAccess.Repository
         }
         public async Task AddProductDiamondAsync(ProductDiamond productDiamond)
         {
-            // Construct the raw SQL query
             var sql = "INSERT INTO ProductDiamond (ProductId, DiamondCode) VALUES (@ProductId, @DiamondCode)";
-
-            // Execute the raw SQL command
-            await _context.Database.ExecuteSqlRawAsync(sql, new SqlParameter("@ProductId", productDiamond.ProductId), new SqlParameter("@DiamondCode", productDiamond.DiamondCode));
+            await _context.Database.ExecuteSqlRawAsync(sql,
+                new SqlParameter("@ProductId", productDiamond.ProductId),
+                new SqlParameter("@DiamondCode", productDiamond.DiamondCode));
         }
+
 
         public async Task DeleteProductDiamondsByProductIdAsync(string productId)
         {

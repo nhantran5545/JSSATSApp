@@ -40,7 +40,7 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpPut("{materialPriceId}")]
-        [Authorize]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> UpdateMaterialPrice(int materialPriceId, [FromBody] UpdateMaterialPriceRequest request)
         {
             try

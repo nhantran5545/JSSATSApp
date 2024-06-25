@@ -1,4 +1,5 @@
 ﻿using JSSATSAPI.BussinessObjects.IService;
+using JSSATSAPI.BussinessObjects.RequestModels.MaterialReqModels;
 using JSSATSAPI.BussinessObjects.ResponseModels.MaterialResponse;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,14 @@ namespace JSSATS_API.Controllers
         {
             var materialTypes = await _materialService.GetAllMaterialsWithTypesAsync();
             return Ok(materialTypes);
+        }
+
+        [HttpPost]
+        [Route("create-material-with-price")]
+        public async Task<ActionResult<MaterialWithPriceResponse>> CreateMaterialWithPrice(MaterialRequest request)
+        {
+            var response = await _materialService.CreateMaterialWithPriceAsync(request);
+            return Ok(response);
         }
     }
 }

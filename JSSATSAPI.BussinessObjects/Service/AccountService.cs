@@ -160,13 +160,13 @@ namespace JSSATSAPI.BussinessObjects.Service
 
         public async Task<IEnumerable<AccountDetailResponse>> GetManagerAccountsAsync()
         {
-            var managerAccounts = await _accountRepository.GetAccountsByRoleAsync("Manager");
+            var managerAccounts = await _accountRepository.GetAccountsByRoleAsync("Cashier");
             return _mapper.Map<IEnumerable<AccountDetailResponse>>(managerAccounts);
         }
 
         public async Task<IEnumerable<AccountDetailResponse>> GetStaffAccountsAsync()
         {
-            var managerAccounts = await _accountRepository.GetAccountsByRoleAsync("Staff");
+            var managerAccounts = await _accountRepository.GetAccountsByRoleAsync("Seller");
             return _mapper.Map<IEnumerable<AccountDetailResponse>>(managerAccounts);
         }
 

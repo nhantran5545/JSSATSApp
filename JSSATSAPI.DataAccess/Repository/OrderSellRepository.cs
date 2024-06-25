@@ -173,5 +173,39 @@ namespace JSSATSAPI.DataAccess.Repository
                 .Where(o => o.CustomerId == customerId)
                 .ToList();
         }
+
+
+        //Dashboard
+
+        public async Task<decimal> GetTotalRevenueAsync()
+        {
+            return await _context.OrderSells
+                .Where(o => o.Status == "Delivered" || o.Status == "Paid")
+                .SumAsync(o => o.FinalAmount ?? 0);
+        }
+
+        public async Task<decimal> GetRevenueByCategoryIdAsync(int categoryId)
+        {
+            return await _context.OrderSellDetails
+                .Where(d => d.Product.CategoryId == categoryId && (d.OrderSell.Status == "Delivered" || d.OrderSell.Status == "Paid"))
+                .SumAsync(d => d.Price ?? 0);
+        }
+
+        public async Task<List<OrderSell>> GetRecentOrdersAsync()
+        {
+            return await _context.OrderSells
+                .Include(o => o.Customer)
+                .OrderByDescending(o => o.OrderDate)
+                .Take(10)
+                .ToListAsync();
+        }
+
+        public async Task<List<OrderSell>> GetOrdersByMonthAsync(int year, int month)
+        {
+            return await _context.OrderSells
+                .Where(o => o.OrderDate.HasValue && o.OrderDate.Value.Year == year && o.OrderDate.Value.Month == month)
+                .Include(o => o.Seller)
+                .ToListAsync();
+        }
     }
 }

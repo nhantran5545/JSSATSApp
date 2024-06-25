@@ -12,7 +12,7 @@ namespace JSSATSAPI.BussinessObjects.IService
 {
     public interface IDiamondPriceService
     {
-        Task<DiamondPriceResponse> CreateDiamondPriceAsync(DiamondPriceRequest request);
+/*        Task<DiamondPriceResponse> CreateDiamondPriceAsync(DiamondPriceRequest request);*/
         Task<IEnumerable<DiamondPriceResponse>> GetAllDiamondPrsiceAsync();
         Task<DiamondPriceResponse> UpdateDiamondPriceAsync(int id, UpdateDiamondPriceRequest request);
     }

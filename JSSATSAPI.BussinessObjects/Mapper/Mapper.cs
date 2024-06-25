@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using JSSATSAPI.BussinessObjects.RequestModels.AccountReqModels;
+using JSSATSAPI.BussinessObjects.RequestModels.DiamondRequest;
 using JSSATSAPI.BussinessObjects.RequestModels.OrderBuyBackRequest;
 using JSSATSAPI.BussinessObjects.RequestModels.OrderSellReq;
 using JSSATSAPI.BussinessObjects.RequestModels.PaymentReq;
@@ -10,6 +11,7 @@ using JSSATSAPI.BussinessObjects.ResponseModels.CategoryResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.CounterResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.CustomerResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.DiamondPriceResponse;
+using JSSATSAPI.BussinessObjects.ResponseModels.DiamondResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.MaterialPriceResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.MaterialResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.OrderBuyBackDetailRes;
@@ -17,6 +19,7 @@ using JSSATSAPI.BussinessObjects.ResponseModels.OrderBuyBackResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.OrderSellResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.PaymentTypeResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.ProductResponseModels;
+using JSSATSAPI.BussinessObjects.ResponseModels.WarrantyTicketResponse;
 using JSSATSAPI.DataAccess.Models;
 using System;
 using System.Collections.Generic;
@@ -128,6 +131,8 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                          .ReverseMap();
             CreateMap<DiamondPrice, DiamondPriceResponse>()
                          .ReverseMap();
+            CreateMap<Diamond, DiamondResponse>()
+             .ReverseMap();
 
 
             CreateMap<OrderBuyBack, OrderBuyBackResponse>()
@@ -164,6 +169,12 @@ namespace JSSATSAPI.BussinessObjects.Mapper
             CreateMap<CategoryType, CategoryTypeResponse>()
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories))
                 .ReverseMap();
+            CreateMap<WarrantyTicket, WarrantyTicketResponse>()
+                .ForMember(dest => dest.ProductName,
+                           opt => opt.MapFrom(src => src.OrderSellDetail.Product.ProductName))
+                .ReverseMap();
+            CreateMap<Diamond, DiamondWithPriceResponse>()
+                .ReverseMap();
             #endregion
             #region Mapper_Request
 
@@ -190,7 +201,8 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                 .ForMember(dest => dest.Clarity, opt => opt.MapFrom(src => src.Clarity))
                 .ForMember(dest => dest.Cut, opt => opt.MapFrom(src => src.Cut))
                 .ReverseMap();
-
+            CreateMap<DiamondRequest, Diamond>();
+            CreateMap<DiamondRequest, DiamondPrice>();
             #endregion
         }
     }

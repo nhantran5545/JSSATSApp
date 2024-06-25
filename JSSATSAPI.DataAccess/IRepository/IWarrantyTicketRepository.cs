@@ -9,5 +9,6 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface IWarrantyTicketRepository : IGenericRepository<WarrantyTicket>
     {
+        Task<List<WarrantyTicket>> GetActiveWarrantyTicketsAsync();
     }
 }

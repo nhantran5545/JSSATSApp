@@ -9,6 +9,6 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface IMaterialPriceRepository : IGenericRepository<MaterialPrice>
     {
-
+        Task<MaterialPrice> AddMaterialPriceAsync(MaterialPrice materialPrice);
     }
 }

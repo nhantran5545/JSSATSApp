@@ -1,4 +1,5 @@
-﻿using JSSATSAPI.BussinessObjects.ResponseModels.CounterResponse;
+﻿using JSSATSAPI.BussinessObjects.RequestModels.CounterRequest;
+using JSSATSAPI.BussinessObjects.ResponseModels.CounterResponse;
 using JSSATSAPI.BussinessObjects.ResponseModels.CustomerResponse;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace JSSATSAPI.BussinessObjects.IService
 {
     public interface ICounterService
     {
+        Task<CounterResponse> CreateCounterAsync(CreateCounteRequest request);
         Task<IEnumerable<CounterResponse>> GetAllCounters();
+        Task UpdateCounterAsync(int counterId, CreateCounteRequest updateCounterDto);
     }
 }

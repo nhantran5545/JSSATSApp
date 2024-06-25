@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PdfSharp.Charting;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -103,12 +104,17 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IPaymentTypeService, PaymentTypeService>();
 builder.Services.AddScoped<IDiamondPriceService, DiamondPriceService>();
+builder.Services.AddScoped<IDiamondService, DiamondService>();
 builder.Services.AddScoped<IMaterialPriceService, MaterialPriceService>();
 builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<IOrderBuyBackService, OrderBuyBackService>();
 builder.Services.AddScoped<IBarCodeService, BarcodeService>();
 builder.Services.AddScoped<ICounterService, CounterService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IWarrantyTicketService, WarrantyTicketService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+builder.Services.AddHostedService<WarrantyStatusUpdaterService>();
 
 
 builder.Services.AddSingleton<BarcodeService>();

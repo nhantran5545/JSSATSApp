@@ -41,7 +41,19 @@ namespace JSSATSAPI.DataAccess.Repository
                                  .OrderByDescending(dp => dp.EffDate)
                                  .FirstOrDefaultAsync();
         }
+        public async Task<DiamondPrice> AddDiamondPriceAsync(DiamondPrice diamondPrice)
+        {
+            _context.DiamondPrices.Add(diamondPrice);
+            await _context.SaveChangesAsync();
+            return diamondPrice;
+        }
 
+        public async Task<DiamondPrice> GetDiamondPriceAsync(string origin, decimal caratWeightFrom, decimal caratWeightTo, string color, string clarity, string cut)
+        {
+            return await _context.DiamondPrices
+                .FirstOrDefaultAsync(dp => dp.Origin == origin && dp.CaratWeightFrom == caratWeightFrom && dp.CaratWeightTo == caratWeightTo &&
+                                           dp.Color == color && dp.Clarity == clarity && dp.Cut == cut);
+        }
 
     }
 }

@@ -23,7 +23,11 @@ namespace JSSATSAPI.DataAccess.Repository
                 .ToListAsync();
         }
 
-
-
+        public async Task<MaterialPrice> AddMaterialPriceAsync(MaterialPrice materialPrice)
+        {
+            var result = await _context.MaterialPrices.AddAsync(materialPrice);
+            await _context.SaveChangesAsync();
+            return result.Entity;
+        }
     }
 }

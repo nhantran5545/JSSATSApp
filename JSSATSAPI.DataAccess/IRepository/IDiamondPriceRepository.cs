@@ -11,5 +11,7 @@ namespace JSSATSAPI.DataAccess.IRepository
     {
         Task<DiamondPrice> GetLatestDiamondPriceAsync(string origin, decimal caratWeightFrom, decimal caratWeightTo, string color, string clarity, string cut);
         Task<DiamondPrice> GetBuyPriceDiamondPriceAsync(string origin, decimal caratWeight, string color, string clarity, string cut);
+        Task<DiamondPrice> AddDiamondPriceAsync(DiamondPrice diamondPrice);
+        Task<DiamondPrice> GetDiamondPriceAsync(string origin, decimal caratWeightFrom, decimal caratWeightTo, string color, string clarity, string cut);
     }
 }
