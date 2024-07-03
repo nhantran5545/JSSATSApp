@@ -32,5 +32,12 @@ namespace JSSATS_API.Controllers
             var salesData = await _dashboardService.GetSalesDataAsync();
             return Ok(salesData);
         }
+        [Authorize(Roles = "Manager")]
+        [HttpGet("counts")]
+        public async Task<ActionResult<DashboardCountsResponse>> GetDashboardCounts()
+        {
+            var counts = await _dashboardService.GetDashboardCountsAsync();
+            return Ok(counts);
+        }
     }
 }

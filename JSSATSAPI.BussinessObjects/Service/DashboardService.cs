@@ -1,6 +1,7 @@
 ﻿using JSSATSAPI.BussinessObjects.IService;
 using JSSATSAPI.BussinessObjects.ResponseModels.DashboardResponse;
 using JSSATSAPI.DataAccess.IRepository;
+using JSSATSAPI.DataAccess.Repository;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,12 +16,16 @@ namespace JSSATSAPI.BussinessObjects.Service
         private readonly IOrderSellRepository _orderSellRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly IOrderBuyBackRepository _orderBuyBackRepository;
+        private readonly ICustomerRepository _customerRepository;
 
-        public DashboardService(IOrderSellRepository orderSellRepository, ICategoryRepository categoryRepository, IAccountRepository accountRepository)
+        public DashboardService(IOrderSellRepository orderSellRepository, ICategoryRepository categoryRepository, IAccountRepository accountRepository, IOrderBuyBackRepository orderBuyBackRepository, ICustomerRepository customerRepository)
         {
             _orderSellRepository = orderSellRepository;
             _categoryRepository = categoryRepository;
             _accountRepository = accountRepository;
+            _customerRepository = customerRepository;
+            _orderBuyBackRepository = orderBuyBackRepository;
         }
 
         public async Task<DashboardResponse> GetDashboardDataAsync()
@@ -104,7 +109,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                 .Select(g => new ProductSalesResponse
                 {
                     Period = g.Key.ToString("yyyy-MM-dd"),
-                    TotalProductsSold = g.Sum(o => o.OrderSellDetails.Sum(d => d.Quantity ?? 0))
+                    TotalProductsSold = g.Sum(o => o.OrderSellDetails.Sum(d => d.Quantity ?? 0)),
+                    TotalRevenue = g.Sum(o => o.FinalAmount ?? 0)
                 }).ToList();
 
             var weeklySales = orderSells
@@ -112,7 +118,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                 .Select(g => new ProductSalesResponse
                 {
                     Period = $"Week {g.Key.Week}, {g.Key.Year}",
-                    TotalProductsSold = g.Sum(o => o.OrderSellDetails.Sum(d => d.Quantity ?? 0))
+                    TotalProductsSold = g.Sum(o => o.OrderSellDetails.Sum(d => d.Quantity ?? 0)),
+                    TotalRevenue = g.Sum(o => o.FinalAmount ?? 0)
                 }).ToList();
 
             var monthlySales = orderSells
@@ -120,7 +127,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                 .Select(g => new ProductSalesResponse
                 {
                     Period = $"{g.Key.Month}-{g.Key.Year}",
-                    TotalProductsSold = g.Sum(o => o.OrderSellDetails.Sum(d => d.Quantity ?? 0))
+                    TotalProductsSold = g.Sum(o => o.OrderSellDetails.Sum(d => d.Quantity ?? 0)),
+                    TotalRevenue = g.Sum(o => o.FinalAmount ?? 0)
                 }).ToList();
 
             var yearlySales = orderSells
@@ -128,7 +136,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                 .Select(g => new ProductSalesResponse
                 {
                     Period = g.Key.ToString(),
-                    TotalProductsSold = g.Sum(o => o.OrderSellDetails.Sum(d => d.Quantity ?? 0))
+                    TotalProductsSold = g.Sum(o => o.OrderSellDetails.Sum(d => d.Quantity ?? 0)),
+                    TotalRevenue = g.Sum(o => o.FinalAmount ?? 0)
                 }).ToList();
 
             return new SalesDashboardResponse
@@ -137,6 +146,20 @@ namespace JSSATSAPI.BussinessObjects.Service
                 WeeklySales = weeklySales,
                 MonthlySales = monthlySales,
                 YearlySales = yearlySales
+            };
+        }
+
+        public async Task<DashboardCountsResponse> GetDashboardCountsAsync()
+        {
+            var orderSellCount = await _orderSellRepository.GetAllOrderSellDeliveredAsync();
+            var orderBuyBackCount = await _orderBuyBackRepository.GetAllOrderBuyBacPaidAsync();
+            var customerCount = await _customerRepository.GetAllAsync();
+
+            return new DashboardCountsResponse
+            {
+                OrderSellCount = orderSellCount.Count(),
+                OrderBuyBackCount = orderBuyBackCount.Count(),
+                CustomerCount = customerCount.Count()
             };
         }
     }

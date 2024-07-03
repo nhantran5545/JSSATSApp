@@ -37,5 +37,12 @@ namespace JSSATSAPI.DataAccess.Repository
                 .Where(br => br.OrderBuyBackId.Equals(id))
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<IEnumerable<OrderBuyBack>> GetAllOrderBuyBacPaidAsync()
+        {
+            return await _context.OrderBuyBacks
+                .Where(br => br.Status == "Paid")
+                .ToListAsync();
+        }
     }
 }

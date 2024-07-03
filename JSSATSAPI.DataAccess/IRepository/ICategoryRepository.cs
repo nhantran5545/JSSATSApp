@@ -9,5 +9,7 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface ICategoryRepository : IGenericRepository<Category>
     {
+        void UpdateCategory(Category category);
+        Task<int> SaveChangesAsync();
     }
 }

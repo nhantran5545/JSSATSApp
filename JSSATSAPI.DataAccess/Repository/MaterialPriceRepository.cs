@@ -22,12 +22,20 @@ namespace JSSATSAPI.DataAccess.Repository
                 .ThenInclude(b => b.MaterialType)
                 .ToListAsync();
         }
-
+        public async Task<IEnumerable<MaterialPrice>> GetByMaterialIdAsync(int materialId)
+        {
+            return await _context.MaterialPrices.Where(mp => mp.MaterialId == materialId).ToListAsync();
+        }
         public async Task<MaterialPrice> AddMaterialPriceAsync(MaterialPrice materialPrice)
         {
             var result = await _context.MaterialPrices.AddAsync(materialPrice);
             await _context.SaveChangesAsync();
             return result.Entity;
+        }
+        public async Task DeleteAsync(MaterialPrice materialPrice)
+        {
+            _context.MaterialPrices.Remove(materialPrice);
+            await _context.SaveChangesAsync();
         }
     }
 }

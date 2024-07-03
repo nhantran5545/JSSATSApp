@@ -13,6 +13,7 @@ namespace JSSATSAPI.BussinessObjects.IService
     {
         Task<CounterResponse> CreateCounterAsync(CreateCounteRequest request);
         Task<IEnumerable<CounterResponse>> GetAllCounters();
-        Task UpdateCounterAsync(int counterId, CreateCounteRequest updateCounterDto);
+        Task<CounterResponse> GetCounterById(int counter);
+        Task<bool> UpdateCounterAsync(int counterId, CreateCounteRequest request);
     }
 }

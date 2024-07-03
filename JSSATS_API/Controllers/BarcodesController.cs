@@ -20,40 +20,56 @@ namespace JSSATS_API.Controllers
         }
 
         [HttpGet("{productId}")]
-        public IActionResult GetBarcode(string productId)
+        public async Task<IActionResult> GenerateBarcode(string productId)
         {
-            var barcodeImage = _barcodeService.GenerateBarcode(productId);
-            return File(barcodeImage, "image/png");
+            try
+            {
+                var product = await _productService.GetProductByIdAsync(productId);
+                if (product == null)
+                {
+                    return NotFound(new { Message = "Product not found" });
+                }
+
+                var barcode = await _barcodeService.GenerateBarcodeAsync(productId);
+                return File(barcode, "image/png");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while generating the barcode", Details = ex.Message });
+            }
         }
 
-/*        [HttpPost("decode")]
-        public IActionResult DecodeBarcode(IFormFile barcodeImageFile)
+        [HttpPost("decode")]
+        public IActionResult DecodeBarcode(IFormFile file)
         {
-            if (barcodeImageFile == null || barcodeImageFile.Length == 0)
+            if (file == null || file.Length == 0)
             {
-                return BadRequest("File không được cung cấp.");
+                return BadRequest(new { Message = "Invalid file" });
             }
 
-            string productId;
-            using (var stream = barcodeImageFile.OpenReadStream())
+            try
             {
-                productId = _barcodeService.DecodeBarcode(stream);
+                using (var stream = new MemoryStream())
+                {
+                    file.CopyTo(stream);
+                    stream.Position = 0;
+                    var result = _barcodeService.DecodeBarcode(stream);
+                    if (string.IsNullOrEmpty(result))
+                    {
+                        return BadRequest(new { Message = "Unable to decode the barcode" });
+                    }
+                    return Ok(new { ProductId = result });
+                }
             }
-
-            if (string.IsNullOrEmpty(productId))
+            catch (Exception ex)
             {
-                return NotFound("Không thể giải mã mã vạch.");
+                return StatusCode(500, new { Message = "An error occurred while decoding the barcode", Details = ex.Message });
             }
-
-            var productDetails = _productService.GetProductById(productId);
-
-            if (productDetails == null)
-            {
-                return NotFound("Không tìm thấy thông tin sản phẩm.");
-            }
-
-            return Ok(productDetails);
-        }*/
-
+        }
     }
+
 }

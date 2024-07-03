@@ -12,6 +12,7 @@ namespace JSSATSAPI.BussinessObjects.IService
     public interface IMaterialService
     {
         Task<MaterialWithPriceResponse> CreateMaterialWithPriceAsync(MaterialRequest request);
+        Task DeleteMaterialAsync(int materialId);
         Task<IEnumerable<MaterialTypeResponse>> GetAllMaterialsWithTypesAsync();
 
     }

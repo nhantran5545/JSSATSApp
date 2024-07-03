@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace JSSATSAPI.BussinessObjects.ResponseModels.DashboardResponse
 {
-    public class ProductSalesResponse
+    public class DashboardCountsResponse
     {
-        public string Period { get; set; }
-        public int TotalProductsSold { get; set; }
-        public decimal TotalRevenue { get; set; }
+        public int OrderSellCount { get; set; }
+        public int OrderBuyBackCount { get; set; }
+        public int CustomerCount { get; set; }
     }
 }

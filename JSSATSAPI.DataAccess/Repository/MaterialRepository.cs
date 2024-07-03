@@ -26,5 +26,10 @@ namespace JSSATSAPI.DataAccess.Repository
             await _context.SaveChangesAsync();
             return result.Entity;
         }
+        public async Task DeleteAsync(Material material)
+        {
+            _context.Materials.Remove(material);
+            await _context.SaveChangesAsync();
+        }
     }
 }

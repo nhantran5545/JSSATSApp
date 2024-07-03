@@ -64,9 +64,9 @@ namespace JSSATSAPI.BussinessObjects.Service
                 throw new Exception("Order not found");
             }
 
-            if (orderSell.Status != "Paid")
+            if (orderSell.Status != "Paid" && orderSell.Status != "Delivered")
             {
-                throw new InvalidOperationException("Invoice cannot be exported for unpaid orders.");
+                throw new InvalidOperationException("Invoice cannot be exported for unpaid or orders.");
             }
 
             var sellInvoiceDto = _mapper.Map<SellInvoiceDTO>(orderSell);
@@ -101,7 +101,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
                 // Header Section
                 html.Append("<div class='invoice-header'>");
-                html.Append("<img src='https://bfrsserverupload.blob.core.windows.net/bfrsimage/JSSATS_logo.png' alt='Logo' style='width: 70%; max-width: 300px;' />");
+                html.Append("<img src='https://bfrsserverupload.blob.core.windows.net/bfrsimage/JSSATS_logo.png' alt='Logo' style='width: 90%; max-width: 400px;' />");
                 html.Append("</div>");
 
                 // Title Section
@@ -243,7 +243,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 throw new Exception("Order not found");
             }
             // Check if the order is paid
-            if (orderSell.Status != "Paid")
+            if (orderSell.Status != "Paid" && orderSell.Status != "Delivered")
             {
                 throw new InvalidOperationException("Invoice cannot be exported for unpaid orders.");
             }

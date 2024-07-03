@@ -29,7 +29,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
         public async Task<IEnumerable<DiamondResponse>> GetAllDiamond()
         {
-            var customers = await _diamondRepository.GetAllAsync();
+            var customers = await _diamondRepository.GetAllDiamondsAvaiable();
             return _mapper.Map<IEnumerable<DiamondResponse>>(customers);
         }
 

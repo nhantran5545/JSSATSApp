@@ -61,13 +61,24 @@ namespace JSSATS_API.Controllers
         {
             try
             {
-                var updatedProduct = _counterService.UpdateCounterAsync(counterId, request);
-                return Ok("Update counter successfully");
+                var counter = await _counterService.GetCounterById(counterId);
+                if (counter == null)
+                {
+                    return NotFound("Counter not found");
+                }
 
+                if (await _counterService.UpdateCounterAsync(counterId, request))
+                {
+                    return Ok(request);
+                }
+                else
+                {
+                    return BadRequest("Update failed.");
+                }
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest($"Message: {ex.Message}");
             }
         }
     }

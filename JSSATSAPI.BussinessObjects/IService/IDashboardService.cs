@@ -9,6 +9,7 @@ namespace JSSATSAPI.BussinessObjects.IService
 {
     public interface IDashboardService
     {
+        Task<DashboardCountsResponse> GetDashboardCountsAsync();
         Task<DashboardResponse> GetDashboardDataAsync();
         Task<SalesDashboardResponse> GetSalesDataAsync();
     }

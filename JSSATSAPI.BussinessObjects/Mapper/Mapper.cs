@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using JSSATSAPI.BussinessObjects.RequestModels.AccountReqModels;
+using JSSATSAPI.BussinessObjects.RequestModels.CategoryRequest;
+using JSSATSAPI.BussinessObjects.RequestModels.CounterRequest;
 using JSSATSAPI.BussinessObjects.RequestModels.DiamondRequest;
 using JSSATSAPI.BussinessObjects.RequestModels.OrderBuyBackRequest;
 using JSSATSAPI.BussinessObjects.RequestModels.OrderSellReq;
@@ -164,20 +166,23 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                                     opt => opt.MapFrom(src => src.Account != null ? src.Account.LastName : string.Empty))
                         .ReverseMap();
             CreateMap<Category, CategoryResponse>()
-                .ReverseMap();
+                             .ForMember(dest => dest.CategoryTypeName,
+                                    opt => opt.MapFrom(src => src.CategoryType != null ? src.CategoryType.CategoryTypeName : string.Empty))
+                            .ReverseMap();
 
             CreateMap<CategoryType, CategoryTypeResponse>()
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories))
                 .ReverseMap();
             CreateMap<WarrantyTicket, WarrantyTicketResponse>()
                 .ForMember(dest => dest.ProductName,
-                           opt => opt.MapFrom(src => src.OrderSellDetail.Product.ProductName))
+                                    opt => opt.MapFrom(src => src.Product != null ? src.Product.ProductName : string.Empty))
                 .ReverseMap();
             CreateMap<Diamond, DiamondWithPriceResponse>()
                 .ReverseMap();
             #endregion
             #region Mapper_Request
-
+            CreateMap<AccountSignUpRequest, Account>()
+                        .ReverseMap();
             CreateMap<OrderSellRequest, OrderSell>()
                         .ForMember(dest => dest.OrderSellDetails, opt => opt.MapFrom(src => src.OrderSellDetails))
                         .ReverseMap();
@@ -189,8 +194,11 @@ namespace JSSATSAPI.BussinessObjects.Mapper
                         .ForMember(dest => dest.OrderBuyBackDetails, opt => opt.MapFrom(src => src.OrderBuyBackDetails))
                         .ReverseMap();
             CreateMap<OrderBuyBackDetailRequest, OrderBuyBackDetailResponse>()
-                .ReverseMap();
-
+                        .ReverseMap();
+            CreateMap<CreateCounteRequest, Counter>()
+                        .ReverseMap();
+            CreateMap<CreateCategoryRequest, Category>()
+                        .ReverseMap();
             CreateMap<OrderBuyBackDetailRequest, OrderBuyBackDetail>()
                 .ForMember(dest => dest.BuyBackProductName, opt => opt.MapFrom(src => src.BuyBackProductName))
                 .ForMember(dest => dest.MaterialId, opt => opt.MapFrom(src => src.MaterialId))

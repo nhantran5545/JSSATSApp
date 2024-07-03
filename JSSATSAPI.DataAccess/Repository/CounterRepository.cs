@@ -21,5 +21,16 @@ namespace JSSATSAPI.DataAccess.Repository
                 .Include(b => b.Account)
                 .ToListAsync();
         }
+
+
+        public void UpdateCounter(Counter counter)
+        {
+            _context.Counters.Update(counter);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

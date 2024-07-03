@@ -77,5 +77,12 @@ namespace JSSATSAPI.DataAccess.Repository
                            .Where(pd => pd.ProductId == productId)
                            .ToList();
         }
+
+        public async Task<IEnumerable<ProductDiamond>> GetDiamondsByProductIdAsync(string productId)
+        {
+            return await _context.ProductDiamonds
+                .Where(pd => pd.ProductId == productId)
+                .ToListAsync();
+        }
     }
 }

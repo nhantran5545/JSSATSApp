@@ -36,6 +36,13 @@ namespace JSSATSAPI.BussinessObjects.Service
             return _mapper.Map<IEnumerable<CounterResponse>>(counter);
         }
 
+
+        public async Task<CounterResponse> GetCounterById(int counter)
+        {
+            var counter1 = await _counterRepository.GetByIdAsync(counter);
+            return _mapper.Map<CounterResponse>(counter1);
+        }
+
         public async Task<CounterResponse> CreateCounterAsync(CreateCounteRequest request)
         {
             if (!Validator.TryValidateObject(request, new ValidationContext(request), null, true))
@@ -45,7 +52,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             var accountId = await _accountRepository.GetByIdAsync(request.AccountId);
             if (accountId == null)
             {
-                throw new Exception($"Category with ID {request.AccountId} not found");
+                throw new Exception($"Account with ID {request.AccountId} not found");
             }
             var newCustomer = new Counter
             {
@@ -61,18 +68,32 @@ namespace JSSATSAPI.BussinessObjects.Service
             return customerResponse;
         }
 
-        public async Task UpdateCounterAsync(int counterId, CreateCounteRequest updateCounterDto)
+        public async Task<bool> UpdateCounterAsync(int counterId, CreateCounteRequest request)
         {
             var counter = await _counterRepository.GetByIdAsync(counterId);
             if (counter == null)
             {
-                throw new Exception("Counter not found");
+                return false;
             }
-
-            _mapper.Map(updateCounterDto, counter);
+            var accountId = await _accountRepository.GetByIdAsync(request.AccountId);
+            if (accountId == null)
+            {
+                throw new Exception($"Account with ID {request.AccountId} not found");
+            }
+            if (!string.IsNullOrEmpty(request.CounterName))
+            {
+                counter.CounterName = request.CounterName;
+            }
+            counter.AccountId = request.AccountId;
 
             _counterRepository.Update(counter);
-            _counterRepository.SaveChanges();
+            var result = _counterRepository.SaveChanges();
+            if (result < 1)
+            {
+                return false;
+            }
+            return true;
         }
+
     }
 }

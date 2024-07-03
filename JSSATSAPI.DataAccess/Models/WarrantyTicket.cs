@@ -13,5 +13,6 @@ namespace JSSATSAPI.DataAccess.Models
         public DateTime? WarrantyEndDate { get; set; }
 
         public virtual OrderSellDetail OrderSellDetail { get; set; } = null!;
+        public virtual Product Product { get; set; } = null!;
     }
 }

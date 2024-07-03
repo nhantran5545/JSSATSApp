@@ -97,7 +97,6 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IWarrantyTicketRepository, WarrantyTicketRepository>();
 //Map Services
 builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderSellService, OrderSellService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -108,16 +107,17 @@ builder.Services.AddScoped<IDiamondService, DiamondService>();
 builder.Services.AddScoped<IMaterialPriceService, MaterialPriceService>();
 builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<IOrderBuyBackService, OrderBuyBackService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBarCodeService, BarcodeService>();
 builder.Services.AddScoped<ICounterService, CounterService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IWarrantyTicketService, WarrantyTicketService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
 
 builder.Services.AddHostedService<WarrantyStatusUpdaterService>();
 
 
-builder.Services.AddSingleton<BarcodeService>();
 // Mapper
 var mapperConfig = new MapperConfiguration(mc =>
 {
@@ -157,7 +157,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Manager", policy => policy.RequireRole("Manager"));
 });
 
-var app = builder.Build();
+    var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())

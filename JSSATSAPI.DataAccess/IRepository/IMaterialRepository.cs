@@ -10,6 +10,7 @@ namespace JSSATSAPI.DataAccess.IRepository
     public interface IMaterialRepository : IGenericRepository<Material>
     {
         Task<Material> AddMaterialAsync(Material material);
+        Task DeleteAsync(Material material);
         Task<IEnumerable<Material>> GetAllMaterialsAsync();
     }
 }

@@ -28,6 +28,7 @@ namespace JSSATSAPI.DataAccess.Models
 
         public virtual Category? Category { get; set; }
         public virtual Counter? Counter { get; set; }
+        public virtual WarrantyTicket? WarrantyTicket { get; set; }
         public virtual ICollection<OrderBuyBackDetail> OrderBuyBackDetails { get; set; }
         public virtual ICollection<OrderSellDetail> OrderSellDetails { get; set; }
     }

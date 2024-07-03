@@ -67,5 +67,22 @@ namespace JSSATSAPI.BussinessObjects.Service
             return response;
         }
 
+        public async Task DeleteMaterialAsync(int materialId)
+        {
+            var material = await _material.GetByIdAsync(materialId);
+            if (material == null)
+            {
+                throw new Exception("Material not found");
+            }
+
+            var materialPrices = await _materialPrice.GetByMaterialIdAsync(materialId);
+            foreach (var price in materialPrices)
+            {
+                await _materialPrice.DeleteAsync(price);
+            }
+
+            await _material.DeleteAsync(material);
+        }
+
     }
 }

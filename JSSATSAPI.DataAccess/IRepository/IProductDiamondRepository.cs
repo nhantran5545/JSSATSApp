@@ -15,5 +15,6 @@ namespace JSSATSAPI.DataAccess.IRepository
         Task<IEnumerable<ProductDiamond>> GetProductDiamondsByProductIdAsync(string productId);
         IEnumerable<ProductDiamond> GetProductDiamondsByProductId(string productId);
         Task DeleteProductDiamondsByProductIdAsync(string productId);
+        Task<IEnumerable<ProductDiamond>> GetDiamondsByProductIdAsync(string productId);
     }
 }

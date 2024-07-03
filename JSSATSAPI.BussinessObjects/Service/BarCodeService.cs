@@ -4,13 +4,27 @@ using ZXing;
 using System.Drawing;
 using System.Drawing.Imaging;
 using IronBarCode;
+using JSSATSAPI.DataAccess.IRepository;
 
 namespace JSSATSAPI.BussinessObjects.Service
 {
     public class BarcodeService : IBarCodeService
     {
-        public byte[] GenerateBarcode(string productId)
+        private readonly IProductRepository _productRepository;
+
+        public BarcodeService(IProductRepository productRepository)
         {
+            _productRepository = productRepository;
+        }
+
+        public async Task<byte[]> GenerateBarcodeAsync(string productId)
+        {
+            var product = await _productRepository.GetByIdAsync(productId);
+            if (product == null)
+            {
+                throw new ArgumentException("Product ID does not exist.", nameof(productId));
+            }
+
             var writer = new BarcodeWriterPixelData
             {
                 Format = BarcodeFormat.CODE_128,
@@ -43,13 +57,12 @@ namespace JSSATSAPI.BussinessObjects.Service
                 }
             }
         }
+
         public string DecodeBarcode(Stream barcodeImageStream)
         {
             var result = BarcodeReader.QuicklyReadOneBarcode(barcodeImageStream);
             return result?.Text;
         }
-
-
-
     }
+
 }

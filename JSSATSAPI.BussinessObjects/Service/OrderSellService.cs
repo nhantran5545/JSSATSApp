@@ -7,6 +7,7 @@ using JSSATSAPI.DataAccess.IRepository;
 using JSSATSAPI.DataAccess.Models;
 using JSSATSAPI.DataAccess.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,11 +27,12 @@ namespace JSSATSAPI.BussinessObjects.Service
         private readonly IWarrantyTicketRepository _warrantyTicketRepository;
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
         public OrderSellService(IOrderSellRepository orderSellRepository, 
             IOrderSellDetailRepository orderSellDetailRepository, ICustomerRepository customerRepository, 
             IAccountRepository accountRepository, IMapper mapper, IProductRepository productRepository,
-            IPaymentRepository paymentRepository, IWarrantyTicketRepository warrantyTicketRepository, IAccountService accountService)
+            IPaymentRepository paymentRepository, IWarrantyTicketRepository warrantyTicketRepository, IAccountService accountService, IConfiguration configuration)
         {
             _orderSellRepository = orderSellRepository;
             _orderSellDetailRepository = orderSellDetailRepository;
@@ -41,6 +43,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             _warrantyTicketRepository = warrantyTicketRepository;
             _mapper = mapper;
             _accountService = accountService;
+            _configuration = configuration;
         }
         //Create Sell Order
         public OrderSellResponse CreateSellOrder(OrderSellRequest request)
@@ -298,12 +301,21 @@ namespace JSSATSAPI.BussinessObjects.Service
             }
             _warrantyTicketRepository.SaveChanges();
 
+
+            // Gửi SMS cho khách hàng
+            if (customer != null && !string.IsNullOrEmpty(customer.Phone))
+            {
+                var smsService = new SmsService(_configuration);
+                string message = $"Cảm ơn {customer.Name} đã mua hàng tại cửa hàng chúng tôi. Bảo hành của bạn đã được kích hoạt thành công.";
+                await smsService.SendSmsAsync(customer.Phone, message);
+            }
+
+
             var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
             orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
             orderSellResponse.CustomerLoyaltyPoints = customer?.LoyaltyPoints;
             return orderSellResponse;
         }
-
 
 
 

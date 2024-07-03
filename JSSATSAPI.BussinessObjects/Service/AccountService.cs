@@ -95,6 +95,12 @@ namespace JSSATSAPI.BussinessObjects.Service
             return await _accountRepository.GetAllAsync();
         }
 
+        public async Task<ProfileResponse?> GetProfileAccountByIdAsync(int accId)
+        {
+            var acc = await _accountRepository.GetByIdAsync(accId);
+            return _mapper.Map<ProfileResponse>(acc);
+        }
+
         public async Task RegisterAccountAsync(AccountSignUpRequest accountSignUp)
         {
             var validationContext = new ValidationContext(accountSignUp, serviceProvider: null, items: null);
@@ -158,7 +164,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
 
 
-        public async Task<IEnumerable<AccountDetailResponse>> GetManagerAccountsAsync()
+        public async Task<IEnumerable<AccountDetailResponse>> GetCashierAccountsAsync()
         {
             var managerAccounts = await _accountRepository.GetAccountsByRoleAsync("Cashier");
             return _mapper.Map<IEnumerable<AccountDetailResponse>>(managerAccounts);

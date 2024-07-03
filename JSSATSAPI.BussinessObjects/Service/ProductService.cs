@@ -238,7 +238,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             // Generate unique Product ID
             var productId = GenerateUniqueProductId();
-    
+
             var product = new Product
             {
                 ProductId = productId,
@@ -275,8 +275,13 @@ namespace JSSATSAPI.BussinessObjects.Service
                         DiamondCode = diamond.DiamondCode,
                     };
                     await _productDiamondRepository.AddProductDiamondAsync(productDiamond);
+
+                    // Update Diamond status to "InActive"
+                    diamondExists.Status = "InActive";
+                    _diamondRepository.Update(diamondExists);
                 }
                 _productDiamondRepository.SaveChanges();
+                _diamondRepository.SaveChanges();
             }
 
             // Validate and add Materials
@@ -317,6 +322,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 Status = product.Status,
             };
         }
+
 
 
         public async Task<ProductResponse> GetProductByIdAsync(string productId)
@@ -427,7 +433,6 @@ namespace JSSATSAPI.BussinessObjects.Service
 
         public async Task<ProductResponse> UpdateProductAsync(string productId, UpdateProductRequest request)
         {
-
             var product = await _productRepository.GetByIdAsync(productId);
             if (product == null)
             {
@@ -445,6 +450,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             {
                 throw new Exception($"Category with ID {request.CategoryId} not found");
             }
+
             // Update product details only if provided in the request
             if (request.ProductName != null)
             {
@@ -492,12 +498,25 @@ namespace JSSATSAPI.BussinessObjects.Service
             }
 
             _productRepository.Update(product);
-             _productRepository.SaveChanges();
+            _productRepository.SaveChanges();
 
             // Update Diamonds if provided
             if (request.Diamonds != null && request.Diamonds.Any())
             {
+                var existingDiamonds = await _productDiamondRepository.GetDiamondsByProductIdAsync(productId);
+
+                foreach (var existingDiamond in existingDiamonds)
+                {
+                    var diamond = await _diamondRepository.GetByIdAsync(existingDiamond.DiamondCode);
+                    if (diamond != null)
+                    {
+                        diamond.Status = "Active";
+                        _diamondRepository.Update(diamond);
+                    }
+                }
+
                 await _productDiamondRepository.DeleteProductDiamondsByProductIdAsync(productId);
+
                 foreach (var diamond in request.Diamonds)
                 {
                     var diamondExists = await _diamondRepository.GetByIdAsync(diamond.DiamondCode);
@@ -505,13 +524,21 @@ namespace JSSATSAPI.BussinessObjects.Service
                     {
                         throw new Exception($"Diamond with code {diamond.DiamondCode} not found");
                     }
+
                     var productDiamond = new ProductDiamond
                     {
                         ProductId = productId,
                         DiamondCode = diamond.DiamondCode,
                     };
+
                     await _productDiamondRepository.AddProductDiamondAsync(productDiamond);
+
+                    // Inactivate new diamonds
+                    diamondExists.Status = "InActive";
+                    _diamondRepository.Update(diamondExists);
                 }
+                _productDiamondRepository.SaveChanges();
+                _diamondRepository.SaveChanges();
             }
 
             // Update Materials if provided
@@ -525,6 +552,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                     {
                         throw new Exception($"Material with ID {material.MaterialId} not found");
                     }
+
                     var productMaterial = new ProductMaterial
                     {
                         ProductId = productId,
@@ -533,6 +561,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                     };
                     await _productMaterialRepository.AddProductMaterialAsync(productMaterial);
                 }
+                _productMaterialRepository.SaveChanges();
             }
 
             return new ProductResponse
@@ -551,8 +580,6 @@ namespace JSSATSAPI.BussinessObjects.Service
                 Status = product.Status,
             };
         }
-
-
 
 
     }

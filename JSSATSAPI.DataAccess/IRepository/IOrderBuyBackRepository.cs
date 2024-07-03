@@ -9,5 +9,6 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface IOrderBuyBackRepository : IGenericRepository<OrderBuyBack>
     {
+        Task<IEnumerable<OrderBuyBack>> GetAllOrderBuyBacPaidAsync();
     }
 }

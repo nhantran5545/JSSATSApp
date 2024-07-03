@@ -19,9 +19,10 @@ namespace JSSATSAPI.BussinessObjects.IService
         Task<IEnumerable<Account>> GetAllAccountsAsync();
         Task<bool> UpdateAccount(int AccountId, AccountUpdateRequest accountUpdate);
         Task<bool> CheckUsernameExist(string username);
-        Task<IEnumerable<AccountDetailResponse>> GetManagerAccountsAsync();
+        Task<IEnumerable<AccountDetailResponse>> GetCashierAccountsAsync();
         Task<IEnumerable<AccountDetailResponse>> GetStaffAccountsAsync();
         bool IsManager(int accountId);
         bool IsSeller(int accountId);
+        Task<ProfileResponse?> GetProfileAccountByIdAsync(int accId);
     }
 }

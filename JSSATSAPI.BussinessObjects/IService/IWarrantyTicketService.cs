@@ -11,5 +11,7 @@ namespace JSSATSAPI.BussinessObjects.IService
     public interface IWarrantyTicketService
     {
         Task<IEnumerable<WarrantyTicketResponse>> GetAllWarrantyTicketsAsync();
+        Task<WarrantyTicketResponse> GetWarrantyById(string warrantyId);
+        Task<IEnumerable<WarrantyTicketResponse>> GetWarrantyByPhoneNumberAsync(string phoneNumber);
     }
 }

@@ -10,5 +10,7 @@ namespace JSSATSAPI.DataAccess.IRepository
     public interface IMaterialPriceRepository : IGenericRepository<MaterialPrice>
     {
         Task<MaterialPrice> AddMaterialPriceAsync(MaterialPrice materialPrice);
+        Task DeleteAsync(MaterialPrice materialPrice);
+        Task<IEnumerable<MaterialPrice>> GetByMaterialIdAsync(int materialId);
     }
 }

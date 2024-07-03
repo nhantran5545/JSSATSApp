@@ -21,5 +21,11 @@ namespace JSSATSAPI.DataAccess.Repository
                 .Include(b => b.Categories)
                 .ToListAsync();
         }
+
+        public Task SaveChangesAsync()
+        {
+            return _context.SaveChangesAsync();
+        }
+
     }
 }

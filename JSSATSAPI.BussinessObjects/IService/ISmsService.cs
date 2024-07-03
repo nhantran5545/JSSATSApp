@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace JSSATSAPI.BussinessObjects.IService
 {
-    public interface IBarCodeService
+    public interface ISmsService
     {
-        string DecodeBarcode(Stream barcodeImageStream);
-        Task<byte[]> GenerateBarcodeAsync(string productId);
+        Task SendSmsAsync(string toPhoneNumber, string message);
     }
 }

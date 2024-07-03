@@ -1,5 +1,6 @@
 ﻿using JSSATSAPI.BussinessObjects.IService;
 using JSSATSAPI.BussinessObjects.RequestModels.AccountReqModels;
+using JSSATSAPI.BussinessObjects.ResponseModels.AccountResponseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -94,6 +95,21 @@ namespace JSSATS_API.Controllers
             }
         }
 
+        [HttpGet("cashier")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetCashierAccounts()
+        {
+            try
+            {
+                var sellers = await _accountService.GetCashierAccountsAsync();
+                return Ok(sellers);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("allAccount")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetAllAccount()
@@ -106,6 +122,49 @@ namespace JSSATS_API.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult<ProfileResponse>> GetProfileAccountById()
+        {
+            var accId = _accountService.GetAccountIdFromToken();
+            var profileDetail = await _accountService.GetProfileAccountByIdAsync(accId);
+            return Ok(profileDetail);
+        }
+
+        [HttpPut("status/{accountId}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> ChangStatusAccount(int accountId)
+        {
+            try
+            {
+                var account = await _accountService.ChangStatusAccountById(accountId);
+
+                if (account == null)
+                {
+                    return NotFound("Account not found.");
+                }
+
+                if (!User.IsInRole("Manager"))
+                {
+                    return Forbid(); // Returns 403 Forbidden status code
+                }
+
+                if (account)
+                {
+                    return Ok("Change status successfully.");
+                }
+                return NotFound($"Account with ID {accountId} not found.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
             }
         }
     }

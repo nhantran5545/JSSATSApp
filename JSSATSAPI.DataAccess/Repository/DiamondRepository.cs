@@ -27,6 +27,13 @@ namespace JSSATSAPI.DataAccess.Repository
             return diamond;
         }
 
+        public async Task<IEnumerable<Diamond>> GetAllDiamondsAvaiable()
+        {
+            return await _context.Diamonds
+                                 .Where(pm => pm.Status == "Active")
+                                 .ToListAsync();
+        }
+
         public async Task<string> GetNextDiamondCodeAsync()
         {
             var lastDiamond = await _context.Diamonds.OrderByDescending(d => d.DiamondCode).FirstOrDefaultAsync();

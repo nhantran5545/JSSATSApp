@@ -19,7 +19,7 @@ namespace JSSATS_API.Controllers
             _warrantyTicketService = warrantyTicketService;
         }
 
-/*        [HttpGet]
+        [HttpGet]
         [Authorize]
         public async Task<ActionResult<IEnumerable<WarrantyTicketResponse>>> GetAllWarrantyTickets()
         {
@@ -37,6 +37,39 @@ namespace JSSATS_API.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }*/
+        }
+
+        [HttpGet("{warrantyId}")]
+        //[Authorize]
+        public async Task<IActionResult> GetWarrantyById(string warrantyId)
+        {
+            try
+            {
+                var warrantyTicket = await _warrantyTicketService.GetWarrantyById(warrantyId);
+                if (warrantyTicket == null)
+                {
+                    return NotFound();
+                }
+                return Ok(warrantyTicket);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("GetByPhoneNumber")]
+        public async Task<ActionResult<IEnumerable<WarrantyTicketResponse>>> GetByPhoneNumber(string phoneNumber)
+        {
+            try
+            {
+                var warranties = await _warrantyTicketService.GetWarrantyByPhoneNumberAsync(phoneNumber);
+                return Ok(warranties);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

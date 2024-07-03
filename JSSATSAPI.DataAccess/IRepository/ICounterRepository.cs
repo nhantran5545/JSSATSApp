@@ -9,5 +9,7 @@ namespace JSSATSAPI.DataAccess.IRepository
 {
     public interface ICounterRepository : IGenericRepository<Counter>
     {
+        Task SaveChangesAsync();
+        void UpdateCounter(Counter counter);
     }
 }
