@@ -301,24 +301,11 @@ namespace JSSATSAPI.BussinessObjects.Service
             }
             _warrantyTicketRepository.SaveChanges();
 
-
-            // Gửi SMS cho khách hàng
-            if (customer != null && !string.IsNullOrEmpty(customer.Phone))
-            {
-                var smsService = new SmsService(_configuration);
-                string message = $"Cảm ơn {customer.Name} đã mua hàng tại cửa hàng chúng tôi. Bảo hành của bạn đã được kích hoạt thành công.";
-                await smsService.SendSmsAsync(customer.Phone, message);
-            }
-
-
             var orderSellResponse = _mapper.Map<OrderSellResponse>(orderSell);
             orderSellResponse.MemberShipDiscountPercent = customer?.Tier?.DiscountPercent;
             orderSellResponse.CustomerLoyaltyPoints = customer?.LoyaltyPoints;
             return orderSellResponse;
         }
-
-
-
         //Get Order By Customer
         public IEnumerable<OrderSellResponse> GetOrdersByCustomerId(string customerId)
         {
