@@ -51,9 +51,16 @@ namespace JSSATSAPI.DataAccess.Repository
         public async Task<DiamondPrice> GetDiamondPriceAsync(string origin, decimal caratWeightFrom, decimal caratWeightTo, string color, string clarity, string cut)
         {
             return await _context.DiamondPrices
-                .FirstOrDefaultAsync(dp => dp.Origin == origin && dp.CaratWeightFrom == caratWeightFrom && dp.CaratWeightTo == caratWeightTo &&
-                                           dp.Color == color && dp.Clarity == clarity && dp.Cut == cut);
+                .Where(dp => dp.Origin == origin
+                             && dp.CaratWeightFrom <= caratWeightFrom
+                             && dp.CaratWeightTo >= caratWeightTo
+                             && dp.Color == color
+                             && dp.Clarity == clarity
+                             && dp.Cut == cut)
+                .OrderBy(dp => dp.CaratWeightFrom)
+                .FirstOrDefaultAsync();
         }
+
 
     }
 }

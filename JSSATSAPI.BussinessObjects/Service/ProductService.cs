@@ -258,6 +258,9 @@ namespace JSSATSAPI.BussinessObjects.Service
             await _productRepository.AddAsync(product);
             _productRepository.SaveChanges();
 
+            var productDiamonds = new List<ProductDiamond>();
+            var diamondNames = new List<string>();
+
             // Validate and add Diamonds
             if (request.Diamonds != null && request.Diamonds.Any())
             {
@@ -275,6 +278,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                         DiamondCode = diamond.DiamondCode,
                     };
                     await _productDiamondRepository.AddProductDiamondAsync(productDiamond);
+                    productDiamonds.Add(productDiamond);
+                    diamondNames.Add(diamondExists.DiamondName);
 
                     // Update Diamond status to "InActive"
                     diamondExists.Status = "InActive";
@@ -283,6 +288,9 @@ namespace JSSATSAPI.BussinessObjects.Service
                 _productDiamondRepository.SaveChanges();
                 _diamondRepository.SaveChanges();
             }
+
+            var productMaterials = new List<ProductMaterial>();
+            var materialNames = new List<string>();
 
             // Validate and add Materials
             if (request.Materials != null && request.Materials.Any())
@@ -302,6 +310,8 @@ namespace JSSATSAPI.BussinessObjects.Service
                         Weight = material.Weight
                     };
                     await _productMaterialRepository.AddProductMaterialAsync(productMaterial);
+                    productMaterials.Add(productMaterial);
+                    materialNames.Add(materialExists.MaterialName);
                 }
                 _productMaterialRepository.SaveChanges();
             }
@@ -313,16 +323,19 @@ namespace JSSATSAPI.BussinessObjects.Service
                 Size = product.Size,
                 Img = product.Img,
                 CounterId = product.CounterId,
+                CounterName = counterExists.CounterName,
                 CategoryId = product.CategoryId,
+                CategoryName = categoryExists.CategoryName,
                 MaterialCost = product.MaterialCost,
                 DiamondCost = product.DiamondCost,
                 ProductionCost = product.ProductionCost,
                 ProductPrice = product.ProductPrice,
                 Quantity = product.Quantity,
                 Status = product.Status,
+                MaterialName = string.Join(", ", materialNames),
+                DiamondName = string.Join(", ", diamondNames),
             };
         }
-
 
 
         public async Task<ProductResponse> GetProductByIdAsync(string productId)

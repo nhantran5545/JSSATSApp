@@ -55,5 +55,12 @@ namespace JSSATS_API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("check-price")]
+        public async Task<ActionResult<CheckPriceDiamond>> CheckDiamondPrice([FromBody] CheckDiamondReq request)
+        {
+            var response = await _diamond.CheckDiamondPriceAsync(request);
+            return Ok(response);
+        }
     }
 }
