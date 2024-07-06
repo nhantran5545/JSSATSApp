@@ -65,6 +65,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 decimal totalMaterialCost = 0;
                 decimal totalBuyPriceMaterialCost = 0;
                 string materName = null;
+                decimal materWeight = 0;
                 var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
 
                 var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
@@ -72,22 +73,26 @@ namespace JSSATSAPI.BussinessObjects.Service
                 {
                     var materialPrice = _productMaterialRepository.GetMaterialPriceById(productMaterial.MaterialId.Value);
                     var materialName = productMaterial.Material.MaterialName;
+                    var materialWeight = productMaterial.Weight;
                     if (materialPrice != null)
                     {
                         totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
                         totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
                         materName = materialName;
+                        materialWeight = materialWeight ?? 0;
                     }
                 }
 
                 decimal totalDiamondCost = 0;
                 decimal totalBuyPriceDiamondCost = 0;
                 string diaName = null;
+                string diaCode = null;
                 var productDiamondsList = productDiamonds.Where(pd => pd.ProductId == product.ProductId);
                 foreach (var productDiamond in productDiamondsList)
                 {
                     var diamond = productDiamond.DiamondCodeNavigation;
                     var diamondName = productDiamond.DiamondCodeNavigation.DiamondName;
+                    var diamondCode = productDiamond.DiamondCodeNavigation.DiamondCode;
                     diaName = diamondName;
                     var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom, diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
 
@@ -121,9 +126,14 @@ namespace JSSATSAPI.BussinessObjects.Service
                 productResponseModel.ProductPrice = productPrice;
                 productResponseModel.BuyBackPrice = productBuyPrice;
                 productResponseModel.DiscountRate = categoryDiscountRate;
-                productResponseModel.DiamondName = diaName ?? string.Empty;
-                productResponseModel.MaterialName = materName ?? string.Empty;
-
+                productResponseModel.DiamondCode = diaCode ?? "No DiamondCode";
+                productResponseModel.DiamondName = diaName ?? "No Diamond";
+                productResponseModel.ProductDiamondCost = totalDiamondCost;
+                productResponseModel.ProductDiamondCostBuyBack = totalBuyPriceDiamondCost;
+                productResponseModel.MaterialName = materName ?? "No Material";
+                productResponseModel.MaterialWeight = materWeight;
+                productResponseModel.ProductMaterialCost = totalMaterialCost;
+                productResponseModel.ProductMaterialCostBuyBack = totalBuyPriceMaterialCost;
                 productResponseModels.Add(productResponseModel);
             }
 
@@ -150,32 +160,37 @@ namespace JSSATSAPI.BussinessObjects.Service
                 decimal totalMaterialCost = 0;
                 decimal totalBuyPriceMaterialCost = 0;
                 string materName = null;
+                decimal materWeight = 0;
                 var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
                 foreach (var productMaterial in productMaterials)
                 {
                     var materialPrice = _productMaterialRepository.GetMaterialPriceById(productMaterial.MaterialId.Value);
+                    var materialName = productMaterial.Material.MaterialName;
+                    var materialWeight = productMaterial.Weight;
                     if (materialPrice != null)
                     {
                         totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
                         totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
-                        var materialName = productMaterial.Material.MaterialName;
                         materName = materialName;
+                        materWeight = materialWeight ?? 0;
                     }
                 }
 
                 decimal totalDiamondCost = 0;
                 decimal totalBuyPriceDiamondCost = 0;
                 string diaName = null;
+                string diaCode = null;
                 var productDiamondsList = productDiamonds.Where(pd => pd.ProductId == product.ProductId);
                 foreach (var productDiamond in productDiamondsList)
                 {
                     var diamond = productDiamond.DiamondCodeNavigation;
                     var diamondName = diamond.DiamondName;
-                    diaName = diamondName;
+                    var diamondCode = diamond.DiamondCode;
                     var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom,diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
-
                     if (latestPrice != null)
                     {
+                        diaName = diamondName;
+                        diaCode = diamondCode;
                         totalDiamondCost += latestPrice.SellPrice ?? 0;
                         totalBuyPriceDiamondCost += latestPrice.BuyPrice ?? 0;
                     }
@@ -203,8 +218,14 @@ namespace JSSATSAPI.BussinessObjects.Service
                 productResponseModel.ProductPrice = productPrice;
                 productResponseModel.BuyBackPrice = productBuyPrice;
                 productResponseModel.DiscountRate = categoryDiscountRate;
-                productResponseModel.DiamondName = diaName ?? string.Empty;
-                productResponseModel.MaterialName = materName ?? string.Empty;
+                productResponseModel.DiamondCode = diaCode ?? "No DiamondCode";
+                productResponseModel.DiamondName = diaName ?? "No Diamond";
+                productResponseModel.ProductDiamondCost = totalDiamondCost;
+                productResponseModel.ProductDiamondCostBuyBack = totalBuyPriceDiamondCost;
+                productResponseModel.MaterialName = materName ?? "No Material";
+                productResponseModel.MaterialWeight = materWeight;
+                productResponseModel.ProductMaterialCost = totalMaterialCost;
+                productResponseModel.ProductMaterialCostBuyBack = totalBuyPriceMaterialCost;
                 productResponseModels.Add(productResponseModel);
             }
 
@@ -346,7 +367,10 @@ namespace JSSATSAPI.BussinessObjects.Service
             {
                 return null;
             }
+            decimal totalMaterialCost = 0;
+            decimal totalBuyPriceMaterialCost = 0;
             string materName = null;
+            decimal materWeight = 0;
             var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
 
             var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
@@ -354,23 +378,32 @@ namespace JSSATSAPI.BussinessObjects.Service
             {
                 var materialPrice = _productMaterialRepository.GetMaterialPriceById(productMaterial.MaterialId.Value);
                 var materialName = productMaterial.Material.MaterialName;
+                var materialWeight = productMaterial.Weight;
                 if (materialPrice != null)
                 {
+                    totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
+                    totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
                     materName = materialName;
+                    materWeight = materialWeight ?? 0;
                 }
             }
-
+            decimal totalDiamondCost = 0;
+            decimal totalBuyPriceDiamondCost = 0;
             string diaName = null;
+            string diaCode = null;
             var productDiamondsList = _productDiamondRepository.GetProductDiamondsByProductId(product.ProductId);
             foreach (var productDiamond in productDiamondsList)
             {
                 var diamond = productDiamond.DiamondCodeNavigation;
                 var diamondName = productDiamond.DiamondCodeNavigation.DiamondName;
-                diaName = diamondName;
+                var diamondCode = productDiamond.DiamondCodeNavigation.DiamondCode;
                 var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom, diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
-
                 if (latestPrice != null)
                 {
+                    diaCode = diamondCode;
+                    diaName = diamondName;
+                    totalDiamondCost += latestPrice.SellPrice ?? 0;
+                    totalBuyPriceDiamondCost += latestPrice.BuyPrice ?? 0;
                 }
             }
 
@@ -379,8 +412,14 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             var productResponseModel = _mapper.Map<ProductResponse>(product);
             productResponseModel.DiscountRate = categoryDiscountRate;
-            productResponseModel.DiamondName = diaName ?? string.Empty;
-            productResponseModel.MaterialName = materName ?? string.Empty;
+            productResponseModel.DiamondCode = diaCode ?? "No DiamondCode";
+            productResponseModel.DiamondName = diaName ?? "No Diamond";
+            productResponseModel.ProductDiamondCost = totalDiamondCost;
+            productResponseModel.ProductDiamondCostBuyBack = totalBuyPriceDiamondCost;
+            productResponseModel.MaterialName = materName ?? "No Material";
+            productResponseModel.MaterialWeight = materWeight;
+            productResponseModel.ProductMaterialCost = totalMaterialCost;
+            productResponseModel.ProductMaterialCostBuyBack = totalBuyPriceMaterialCost;
 
             return productResponseModel;
         }

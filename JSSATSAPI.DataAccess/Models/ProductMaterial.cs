@@ -13,3 +13,4 @@ namespace JSSATSAPI.DataAccess.Models
         public virtual Product? Product { get; set; }
     }
 }
+

@@ -138,6 +138,10 @@ namespace JSSATSAPI.BussinessObjects.Service
             {
                 throw new ArgumentException("Invalid Cut. Valid values are: Good, Excellent, Very Excellent.");
             }
+            if (request.CaratWeightFrom < 0 || request.CaratWeightTo < 0 || request.CaratWeightFrom >= request.CaratWeightTo)
+            {
+                throw new ArgumentException("Invalid carat weight range. 'CaratWeightFrom' must be less than 'CaratWeightTo' and both must be non-negative.");
+            }
         }
 
         private void ValidateDiamondRequest(CheckDiamondReq request)
