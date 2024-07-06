@@ -101,7 +101,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
                 // Header Section
                 html.Append("<div class='invoice-header'>");
-                html.Append("<img src='https://bfrsserverupload.blob.core.windows.net/bfrsimage/JSSATS_logo.png' alt='Logo' style='width: 90%; max-width: 400px;' />");
+                html.Append("<img src='https://jssatsstorage.blob.core.windows.net/jssimage/JewelryLogo.png' alt='Logo' style='width: 100%; max-width: 500px;' />");
                 html.Append("</div>");
 
                 // Title Section
@@ -291,7 +291,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             // Header Section
             html.Append("<div class='invoice-header'>");
-            html.Append("<img src='https://bfrsserverupload.blob.core.windows.net/bfrsimage/JSSATS_logo.png' alt='Logo' style='width: 50%; max-width: 250px;' />");
+            html.Append("<img src='https://jssatsstorage.blob.core.windows.net/jssimage/JewelryLogo.png' alt='Logo' style='width: 50%; max-width: 250px;' />");
             html.Append($"<div class='qr-code'><img src='data:image/png;base64,{qrCodeBase64}' alt='QR Code' style='width: 150px; height: 150px; margin-left: 20px;' /></div>");
             html.Append("</div>");
 
@@ -446,7 +446,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
             // Header Section
             html.Append("<div class='invoice-header'>");
-            html.Append("<img src='https://bfrsserverupload.blob.core.windows.net/bfrsimage/JSSATS_logo.png' alt='Logo' style='width: 60%; max-width: 250px;' />");
+            html.Append("<img src='https://jssatsstorage.blob.core.windows.net/jssimage/JewelryLogo.png' alt='Logo' style='width: 60%; max-width: 250px;' />");
 
             // Generate QR code
             var qrGenerator = new QRCodeGenerator();
@@ -545,11 +545,16 @@ namespace JSSATSAPI.BussinessObjects.Service
                 throw new InvalidOperationException("Invoice cannot be exported for unpaid orders.");
             }
 
-
             using (var ms = new MemoryStream())
             {
-                var document = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4, 10f, 10f, 10f, 0f);
-                var writer = iTextSharp.text.pdf.PdfWriter.GetInstance(document, ms);
+                var document = new Document(PageSize.A4, 10f, 10f, 10f, 0f);
+                iTextSharp.text.pdf.PdfWriter writer = iTextSharp.text.pdf.PdfWriter.GetInstance(document, ms);
+
+                if (writer == null)
+                {
+                    throw new NullReferenceException("PdfWriter could not be instantiated.");
+                }
+
                 document.Open();
 
                 StringBuilder html = new StringBuilder();
@@ -560,7 +565,7 @@ namespace JSSATSAPI.BussinessObjects.Service
                 html.Append(".invoice-container { max-width: 800px; margin: auto; margin-bottom: 10px; margin-top: 10px; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }");
                 html.Append(".invoice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }");
                 html.Append(".invoice-header .qr-code { margin-top: 10px; }");
-                html.Append(".invoice-title { text-align: center; margin-bottom: 20px; }"); 
+                html.Append(".invoice-title { text-align: center; margin-bottom: 20px; }");
                 html.Append(".invoice-info { text-align: left; margin-bottom: 10px; }");
                 html.Append(".invoice-details { margin-bottom: 30px; }");
                 html.Append(".invoice-details div { margin-bottom: 10px; }");
@@ -578,7 +583,7 @@ namespace JSSATSAPI.BussinessObjects.Service
 
                 // Header Section
                 html.Append("<div class='invoice-header'>");
-                html.Append("<img src='https://bfrsserverupload.blob.core.windows.net/bfrsimage/JSSATS_logo.png' alt='Logo' style='width: 60%; max-width: 250px;' />");
+                html.Append("<img src='https://jssatsstorage.blob.core.windows.net/jssimage/JewelryLogo.png' alt='Logo' style='width: 100%; max-width: 500px;' />");
 
                 // Generate QR code
                 var qrGenerator = new QRCodeGenerator();
@@ -655,10 +660,6 @@ namespace JSSATSAPI.BussinessObjects.Service
                 html.Append($"<div><strong>Số Tiền Thanh Toán:</strong> {orderBuyBack.FinalAmount?.ToString("N0") ?? "0"} VNĐ</div>");
                 html.Append("</div>");
 
-
-                html.Append("</tbody>");
-                html.Append("</table>");
-
                 html.Append("</div>"); // Closing invoice-container
                 html.Append("</body></html>"); // Closing body and html
 
@@ -671,7 +672,6 @@ namespace JSSATSAPI.BussinessObjects.Service
                 return ms.ToArray();
             }
         }
-
 
 
 
