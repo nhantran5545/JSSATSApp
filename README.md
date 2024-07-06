@@ -34,5 +34,4 @@
   - username: tiepem123
   - password: password123
 ## Link documentations
- - [Software Requirements Specification (SRS )]([https://docs.google.com/document/d/17YK8yWZdzPX3plhuRhdjk4wDUo_cBSKN/edit?fbclid=IwAR1kfA3R6KvTUfIC1mt2FoZi2hrCVKLgs8MXzNsJA4U679Qc1cG_w0uaMt0&pli=1](https://docs.google.com/document/d/1HRCr9ppF9nhWgyeuzUiu6FYKGWi1aRH2/edit))
-  
+ - [Software Requirements Specification (SRS )](https://docs.google.com/document/d/1HRCr9ppF9nhWgyeuzUiu6FYKGWi1aRH2/edit?usp=sharing&ouid=107494017850993282534&rtpof=true&sd=true)
