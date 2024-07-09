@@ -15,6 +15,7 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.ProductResponseModels
         public int? CounterId { get; set; }
         public string CounterName { get; set; }
         public int? CategoryId { get; set; }
+        public int? MaterialId { get; set; }
         public string? MaterialName { get; set; }
         public decimal? MaterialWeight { get; set; }
         public string? DiamondCode { get; set; }
@@ -30,6 +31,7 @@ namespace JSSATSAPI.BussinessObjects.ResponseModels.ProductResponseModels
         public decimal? ProductPrice { get; set; }
         public decimal? BuyBackPrice { get; set; }
         public decimal? DiscountRate { get; set; }
+        public decimal? PriceRate { get; set; }
         public int? Quantity { get; set; }
         public string? Status { get; set; }
     }

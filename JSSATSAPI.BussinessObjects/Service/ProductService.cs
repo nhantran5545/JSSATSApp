@@ -93,13 +93,14 @@ namespace JSSATSAPI.BussinessObjects.Service
                     var diamond = productDiamond.DiamondCodeNavigation;
                     var diamondName = productDiamond.DiamondCodeNavigation.DiamondName;
                     var diamondCode = productDiamond.DiamondCodeNavigation.DiamondCode;
-                    diaName = diamondName;
+
                     var latestPrice = await _diamondPriceRepository.GetLatestDiamondPriceAsync(diamond.Origin, diamond.CaratWeightFrom, diamond.CaratWeightTo, diamond.Color, diamond.Clarity, diamond.Cut);
 
                     if (latestPrice != null)
                     {
                         totalDiamondCost += latestPrice.SellPrice ?? 0;
                         totalBuyPriceDiamondCost += latestPrice.BuyPrice ?? 0;
+                        diaName = diamondName;
                     }
                 }
 
@@ -371,6 +372,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             decimal totalBuyPriceMaterialCost = 0;
             string materName = null;
             decimal materWeight = 0;
+            int materId = 0;
             var categoryDiscountRate = product.Category?.DiscountRate ?? 0;
 
             var productMaterials = _productMaterialRepository.GetProductMaterialsByProductId(product.ProductId);
@@ -379,12 +381,14 @@ namespace JSSATSAPI.BussinessObjects.Service
                 var materialPrice = _productMaterialRepository.GetMaterialPriceById(productMaterial.MaterialId.Value);
                 var materialName = productMaterial.Material.MaterialName;
                 var materialWeight = productMaterial.Weight;
+                var materialid = productMaterial.MaterialId;
                 if (materialPrice != null)
                 {
                     totalMaterialCost += materialPrice.SellPrice * (productMaterial.Weight ?? 0);
                     totalBuyPriceMaterialCost += materialPrice.BuyPrice * (productMaterial.Weight ?? 0);
                     materName = materialName;
                     materWeight = materialWeight ?? 0;
+                    materId = materialid ?? 0;
                 }
             }
             decimal totalDiamondCost = 0;
@@ -416,6 +420,7 @@ namespace JSSATSAPI.BussinessObjects.Service
             productResponseModel.DiamondName = diaName ?? "No Diamond";
             productResponseModel.ProductDiamondCost = totalDiamondCost;
             productResponseModel.ProductDiamondCostBuyBack = totalBuyPriceDiamondCost;
+            productResponseModel.MaterialId = materId;
             productResponseModel.MaterialName = materName ?? "No Material";
             productResponseModel.MaterialWeight = materWeight;
             productResponseModel.ProductMaterialCost = totalMaterialCost;
